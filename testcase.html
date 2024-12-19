@@ -1,24 +1,17 @@
+<!DOCTYPE html>
 <html>
-	<head></head>
-	<body>
-          <a href='htttps://www.verylongurl.googlecloudplatform.accounts.google.com'>Incorrect long</a>
-
-		Visit this link: <span id="304url">https://www.google.com:1234/</span> (please copy and paste into your address bar)<br>
-
-		<button onclick="copyUrl();">copy url</button>
-		<script>
-		
-
-			function copyUrl(){
-				const url = document.getElementById("304url");
-				if(!window.getSelection) return;
-				var range = document.createRange();
-				range.selectNodeContents(url);
-				var sel = window.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(range);
-				document.execCommand("copy");
-							}
-		</script>
-	</body>
+    <head>
+        <meta charset="utf-8">
+        <title>URL Scheme Reference Origin Spoof</title>
+    </head>
+    <body>
+        <a id="contact" onclick="contactSite()" href="tel:+12345678910">Contact Apple</a>
+        <script type="text/javascript">
+            function contactSite() {
+                setTimeout(function() {
+                    location.href = "https://www.apple.com/contact";
+                }, 1);
+            }
+        </script>
+    </body>
 </html>
