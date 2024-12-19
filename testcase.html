@@ -1,39 +1,24 @@
+<html>
+	<head></head>
+	<body>
+          <a href='htttps://www.verylongurl.googlecloudplatform.accounts.google.com'>Incorrect long</a>
 
-<html onmousedown="run()">
+		Visit this link: <span id="304url">https://www.google.com:1234/</span> (please copy and paste into your address bar)<br>
 
-<head id="fullscreenElement">
-    <script>
-        var count = 0;
-        var refsInterval;
+		<button onclick="copyUrl();">copy url</button>
+		<script>
+		
 
-        function run() {
-            document.documentElement.onmousedown = function () {}
-
-            fullscreenElement.requestFullscreen();
-            refsInterval = setInterval(requestExitFullScreen, 80);
-        }
-
-        function requestExitFullScreen() {
-            fullscreenElement.requestFullscreen();
-            aElement.appendChild(fullscreenElement); // Append fullscreen element to aElement to exit fullscreen mode
-        }
-    </script>
-</head>
-
-<body>
-    <h2 id="aElement">Tap anywhere on the page</h2>
-    <h3 id="fullscreenChangeCount"></h3>
-</body>
-
-<script>
-    document.onfullscreenchange = function () {
-        count++;
-        fullscreenChangeCount.innerHTML = count;
-
-        if (count >= 6) {
-            clearInterval(refsInterval);
-        }
-    }
-</script>
-
+			function copyUrl(){
+				const url = document.getElementById("304url");
+				if(!window.getSelection) return;
+				var range = document.createRange();
+				range.selectNodeContents(url);
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+				document.execCommand("copy");
+							}
+		</script>
+	</body>
 </html>
