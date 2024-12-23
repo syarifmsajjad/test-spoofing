@@ -1,0 +1,18 @@
+<button onclick="test()">clickme</button>
+
+<script>
+function test() {
+  // Membuka pop-up ke halaman kosong
+  let w = window.open('https://facebook.com');
+
+  // Periksa apakah pop-up berhasil dibuka
+  if (w) {
+    // Tunggu sebentar sebelum mengarahkan ke tel://
+    setTimeout(() => {
+      w.location = 'tel:+1234567890'; // Ganti dengan nomor telepon yang diinginkan
+    }, 500);
+  } else {
+    alert('Pop-up diblokir atau tidak dapat dibuka. Silakan periksa pengaturan browser Anda.');
+  }
+}
+</script>
