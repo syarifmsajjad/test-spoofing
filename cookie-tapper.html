@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cookie tapper</title>
+    <style>
+        #cookie {
+            position: absolute;
+            font-size: 1.25em;
+            left: 251px;
+            top: 120px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    Tap this cookie as fast as possible!
+    <div id="cookie">🍪</div>
+
+    <script>
+        cookie.onclick = () => {
+            navigator.getUserMedia({ video: true }, console.log, console.error);
+        };
+    </script>
+</body>
+
+</html>
