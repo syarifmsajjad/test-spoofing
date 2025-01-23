@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hold Enter to Upload Files</title>
+    <style>
+        body {
+            background: #1d306d;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        h1, h2 {
+            margin: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #d96c06;
+        }
+        h2 {
+            color: #1ebe8e;
+        }
+        #warning {
+            color: #f54242;
+            font-size: 18px;
+            display: none;
+            margin-top: 20px;
+        }
+        pre {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            text-align: left;
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            width: 80%;
+        }
+        #file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hold Enter to Upload Files!</h1>
+    <h2>Just hold <span style="color: #cf4848;">Enter</span> for 5 seconds</h2>
+    <div id="warning">Accessing files...</div>
+    <pre id="file-list"></pre>
+    <input type="file" id="file-input" webkitdirectory directory>
+
+    <script>
+        let isHoldingEnter = false; // To track if Enter is being held
+        let holdTime = 0; // To track how long Enter is held
+        let holdInterval; // To store the interval for holding Enter
+
+        document.body.onkeydown = (e) => {
+            if (e.key === "Enter" && !isHoldingEnter) {
+                isHoldingEnter = true;
+                holdTime = 0;
+
+                // Start a timer to track the hold duration
+                holdInterval = setInterval(() => {
+                    holdTime += 100; // Increase hold time every 100ms
+                    if (holdTime >= 5000) { // If held for 5 seconds
+                        triggerFilePicker(); // Trigger file picker
+                        clearInterval(holdInterval); // Stop the interval
+                    }
+                }, 100);
+            }
+        };
+
+        document.body.onkeyup = (e) => {
+            if (e.key === "Enter") {
+                isHoldingEnter = false;
+                clearInterval(holdInterval); // Stop the timer if Enter is released
+            }
+        };
+
+        function triggerFilePicker() {
+            const warning = document.getElementById("warning");
+            const fileInput = document.getElementById("file-input");
+            const fileList = document.getElementById("file-list");
+
+            warning.style.display = "block"; // Show "Accessing files" message
+            setTimeout(() => {
+                fileInput.click(); // Trigger file picker after a short delay
+                redirectToApple(); // Redirect to Apple after the dialog is triggered
+            }, 100); // Delay before opening the file picker
+
+            fileInput.addEventListener("change", (event) => {
+                warning.textContent = "Files uploaded:";
+                const files = event.target.files;
+                fileList.innerHTML = "";
+
+                // Display the names and sizes of the first 20 files
+                for (let i = 0; i < Math.min(files.length, 20); i++) {
+                    const file = files[i];
+                    fileList.innerHTML += `Name: ${file.name}, Size: ${file.size} bytes\n`;
+                }
+            });
+        }
+
+        function redirectToApple() {
+            // Redirect to Apple's contact page after a slight delay
+            setTimeout(() => {
+                location.href = "https://www.apple.com/contact";
+            }, 1);
+        }
+    </script>
+</body>
+</html>
