@@ -1,0 +1,9 @@
+<h1>Buy Xbox Game Passes</h1>
+<button id="pipButton">Make Payment</button>
+
+<script>
+  pipButton.addEventListener("click", async () => {
+    const w = window.open("about:blank#very-super-duper-long-subdomain.paypal.com");
+    w.document.write(`<h1>FAKE PAYPAL.COM</h1>`);
+  });
+</script>
