@@ -1,0 +1,30 @@
+diff --git a/content/renderer/render_frame_impl.cc b/content/renderer/render_frame_impl.cc
+--- a/content/renderer/render_frame_impl.cc
++++ b/content/renderer/render_frame_impl.cc
+@@ -6615,7 +6615,7 @@ WebView* RenderFrameImpl::CreateNewWindow(
+ // The user activation check is done at the browser process through
+ // |frame_host->CreateNewWindow()| call below. But the extensions case
+ // handled through the following |if| is an exception.
+-  params->allow_popup = false;
++  params->allow_popup = true;
+ 
+   if (GetContentClient()->renderer()->AllowPopup())
+     params->allow_popup = true;
+@@ -6729,13 +6729,13 @@ WebView* RenderFrameImpl::CreateNewWindow(
+   }
+ 
+   // Consume the transient user activation in the current renderer.
+-  consumed_user_gesture = GetWebFrame()->ConsumeTransientUserActivation(
+-      blink::UserActivationUpdateSource::kBrowser);
++  // consumed_user_gesture = GetWebFrame()->ConsumeTransientUserActivation(
++  //     blink::UserActivationUpdateSource::kBrowser);
+ 
+   // If we should ignore the new window (e.g. because of `noopener`), return
+   // now that user activation was consumed.
+-  if (status == mojom::CreateNewWindowStatus::kIgnore)
+-    return nullptr;
++  // if (status == mojom::CreateNewWindowStatus::kIgnore)
++  //   return nullptr;
+ 
+   DCHECK(reply);
+   DCHECK_NE(MSG_ROUTING_NONE, reply->main_frame_route_id);
