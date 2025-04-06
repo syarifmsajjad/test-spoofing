@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Download Clickjack</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #redBox {
+      position: absolute;
+      top: 10px;
+      right: 150px;
+      width: 30px;
+      height: 30px;
+      background-color: red;
+      cursor: pointer;
+    }
+
+    #counter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 40px;
+    }
+
+    #prize {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      background-color: green;
+      color: white;
+      padding: 10px;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    var clickCount = 0;
+
+    function handleClick() {
+      clickCount++;
+      if (clickCount < 3) {
+        document.getElementById("counter").innerHTML = "Click " + (3 - clickCount) + " more times to win!";
+      } else {
+        document.getElementById("counter").innerHTML = "Congratulations! You've won!";
+        document.getElementById("prize").style.display = "block";
+      }
+      window.open('https://www.apple.com', '_blank');
+    }
+  </script>
+</head>
+<body>
+  <div id="game">
+    <a id="redBox" href="data:text/html,THIS IS MALWARE HAHHAHHA" onclick="handleClick()" download="this_is_not_malware.txt"></a>
+    <div id="counter">Click 3x the Red Button to win!</div>
+    <div id="prize">Click here to claim your prize</div>
+  </div>
+</body>
+</html>
