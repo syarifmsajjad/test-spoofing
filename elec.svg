@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <script>
+    alert(typeof process); // cek apakah kita bisa akses process
+    alert(process.versions.electron); // versi Electron jika bisa
+  </script>
+</svg>
