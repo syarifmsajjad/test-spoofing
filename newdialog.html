@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PoC Redirect</title>
+</head>
+<body>
+
+  <button onclick="o()">click</button>
+
+  <script>
+    function o() { 
+      window.open("picker.html", "MsgWindow", "width=400,height=300");
+      // Redirect halaman utama (bukan popup) ke Google
+      window.location.href = "https://www.google.com";
+    }
+  </script>
+<script>
+        let fileHandle;
+        const butDir = document.getElementById('butDirectory')
+
+        
+        butDir.addEventListener('click', async () => {
+            //get a user system folder
+			setTimeout("window.resizeTo(100,1)",100);
+            const dirHandle = await window.showDirectoryPicker()
+
+           
+        })
+    </script>
+</body>
+</html>
