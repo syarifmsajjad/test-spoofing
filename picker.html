@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cross-Browser Directory Picker</title>
+  <style>
+    #fallbackInput {
+      display: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    body {
+      overflow-x: hidden;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Pilih Folder</h2>
+  <button onclick="pickFolder()">Pilih Folder</button>
+  <input type="file" id="fallbackInput" webkitdirectory multiple>
+
+  <ul id="fileList"></ul>
+
+  <script>
+    // Paksa resize window ke width 146, tinggi tetap otomatis
+    window.onload = () => {
+      try {
+        window.resizeTo(146, window.outerHeight);
+      } catch(e) {
+        console.warn('Resize window gagal, mungkin dibatasi browser');
+      }
+    }
+
+    async function pickFolder() {
+      const list = document.getElementById("fileList");
+      list.innerHTML = "";
+
+      if ('showDirectoryPicker' in window) {
+        try {
+          const dirHandle = await window.showDirectoryPicker();
+          for await (const [name, handle] of dirHandle.entries()) {
+            const item = document.createElement("li");
+            item.textContent = name;
+            list.appendChild(item);
+          }
+        } catch (err) {
+          alert("Akses ditolak atau dibatalkan.");
+        }
+      } else {
+        const fallback = document.getElementById("fallbackInput");
+        fallback.onchange = () => {
+          const files = Array.from(fallback.files);
+          files.forEach(file => {
+            const item = document.createElement("li");
+            item.textContent = file.webkitRelativePath;
+            list.appendChild(item);
+          });
+        };
+        fallback.click();
+      }
+    }
+  </script>
+
+</body>
+</html>
