@@ -1,0 +1,11 @@
+<script>setTimeout(function() {location="https://google.com"}, 2000);</script>
+<input onclick="start()" type="button" value="Click here" />
+
+<script>
+  function start(){
+   var recognition = new webkitSpeechRecognition();
+  recognition.start();
+  navigator.webkitGetUserMedia({audio: true}, function(){}, function(){});
+  }
+
+  </script>
