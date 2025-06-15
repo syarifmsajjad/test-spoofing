@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <a href="javascript:
+      var a = document.createElement('a');
+      a.href = 'http://evil.com';
+      a.innerText = '🔒 Click here to secure your account';
+      a.style = 'color:blue;font-size:32px;font-weight:bold;text-decoration:underline;display:block;text-align:center;margin-top:150px;font-family:sans-serif;';
+      document.body.style.background = 'white';
+      document.body.appendChild(a);
+    ">
+      <img src="https://i.imgur.com/qjUi3Z9.png" width="200">
+      <h1>Drag and drop this image to new tab</h1>
+    </a>
+  </body>
+</html>
