@@ -1,0 +1,19 @@
+<script>
+  // Check if browser supports camera access
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        // Create a video element to show the stream
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.autoplay = true;
+        video.style.width = "100%";
+        document.body.appendChild(video);
+      })
+      .catch(function(error) {
+        alert("Camera access denied: " + error.message);
+      });
+  } else {
+    alert("getUserMedia not supported in this browser.");
+  }
+</script>
