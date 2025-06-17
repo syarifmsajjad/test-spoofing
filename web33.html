@@ -1,0 +1,28 @@
+<script>
+  async function connectWallet() {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts'
+        });
+
+        console.log("Connected wallet address:", accounts[0]);
+        alert("Wallet connected: " + accounts[0]);
+
+        // Optional: Check network
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        console.log("Connected to chain:", chainId);
+      } catch (err) {
+        console.error("Wallet connection failed:", err);
+        alert("Connection rejected or failed.");
+      }
+    } else {
+      alert("No Web3 wallet detected. Please install MetaMask or another wallet.");
+    }
+  }
+
+  // Auto-connect on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    connectWallet();
+  });
+</script>
