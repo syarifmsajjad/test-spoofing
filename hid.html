@@ -1,0 +1,17 @@
+<script>
+  async function requestHIDAccess() {
+    try {
+      const devices = await navigator.hid.requestDevice({ filters: [] });
+      alert("✅ Devices: " + devices.map(d => d.productName).join(", "));
+    } catch (err) {
+      alert("❌ HID access failed: " + err.message);
+    }
+  }
+
+  window.onload = () => {
+    const btn = document.createElement("button");
+    btn.textContent = "Request HID Devices";
+    btn.onclick = requestHIDAccess;
+    document.body.appendChild(btn);
+  };
+</script>
