@@ -1,0 +1,26 @@
+<script>
+  function requestPointerLock() {
+    const el = document.body;
+    if (el.requestPointerLock) {
+      el.requestPointerLock();
+      console.log("✅ Pointer lock requested");
+    } else {
+      console.warn("❌ Pointer Lock API not supported");
+    }
+
+    document.addEventListener("pointerlockchange", () => {
+      if (document.pointerLockElement === el) {
+        console.log("🎯 Pointer is locked to the element");
+      } else {
+        console.log("🔓 Pointer is unlocked");
+      }
+    });
+  }
+
+  window.onload = () => {
+    const btn = document.createElement("button");
+    btn.textContent = "Lock Pointer";
+    btn.onclick = requestPointerLock;
+    document.body.appendChild(btn);
+  };
+</script>
