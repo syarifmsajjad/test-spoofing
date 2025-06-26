@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Delayed Screen Share PoC</title>
+</head>
+<body>
+  <h2>Click to Share Screen</h2>
+  <button id="shareBtn">Start Delayed Share</button>
+
+  <script>
+    const delayRequest = (action) => {
+      console.log("Waiting 2 seconds...");
+      setTimeout(action, 2000);
+    };
+
+    document.getElementById('shareBtn').onclick = () => {
+      delayRequest(async () => {
+        try {
+          const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: { cursor: "always" },
+            audio: false
+          });
+
+          // Optional: preview video locally
+          const video = document.createElement("video");
+          video.srcObject = stream;
+          video.autoplay = true;
+          video.style.width = "100%";
+          video.style.marginTop = "20px";
+          document.body.appendChild(video);
+        } catch (err) {
+          console.warn("User cancelled or error: ", err);
+        }
+      });
+    };
+  </script>
+</body>
+</html>
