@@ -1,0 +1,22 @@
+<button onclick="runBlobWebAuthn()">Run WebAuthn in blob:</button>
+
+<script>
+  function runBlobWebAuthn() {
+    const html = `
+      <script>
+        navigator.credentials.get({
+          publicKey: {
+            challenge: new Uint8Array(32),
+            timeout: 60000,
+            allowCredentials: [],
+            userVerification: "preferred"
+          }
+        }).catch(err => document.body.innerText = 'Error: ' + err.message);
+      <\/script>
+    `;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobURL = URL.createObjectURL(blob);
+    window.open(blobURL, "_blank");
+  }
+</script>
