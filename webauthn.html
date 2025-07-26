@@ -1,0 +1,29 @@
+<script>
+(async () => {
+  if (!window.PublicKeyCredential) {
+    console.error("❌ WebAuthn tidak didukung di browser ini.");
+    return;
+  }
+
+  const challenge = new Uint8Array(32);
+  window.crypto.getRandomValues(challenge);
+
+  try {
+    const result = await navigator.credentials.get({
+      publicKey: {
+        challenge: challenge.buffer,
+        timeout: 60000,
+        userVerification: "preferred",
+        allowCredentials: [] // Empty = allow any
+      }
+    });
+
+    console.log("✅ WebAuthn sukses!");
+    console.log("📌 Credential ID:", result.id);
+    console.log("📄 Type:", result.type);
+    console.log("📦 Authenticator response:", result.response);
+  } catch (err) {
+    console.error("❌ WebAuthn gagal atau dibatalkan:", err);
+  }
+})();
+</script>
