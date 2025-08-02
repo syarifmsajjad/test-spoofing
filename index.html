@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attacker Launcher</title>
+</head>
+<body>
+  <h1>🚀 Launch Spoof Relay</h1>
+  <button id="launch">Launch Connect</button>
+
+  <script>
+    document.getElementById('launch').addEventListener('click', () => {
+      // Buka window baru ke relay.html, klik dianggap user gesture.
+      window.open(
+        'https://syarifmsajjad.github.io/test-spoofing/relay.html', 
+        '_blank', 
+        'popup=true,width=400,height=600'
+      );
+    });
+  </script>
+</body>
+</html>
