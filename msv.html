@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Save & Redirect</title>
+    <style>
+        body {
+            background: #1d306d;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #d96c06;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Click the button to Save File Airdrop From Metamask.io</h1>
+    <button id="goButton">Go & Save</button>
+
+    <script>
+        document.getElementById("goButton").onclick = () => {
+            // Buat file
+            const fileContent = "Hello from Metamask.io redirect!\nGenerated at: " + new Date().toLocaleString();
+            const blob = new Blob([fileContent], { type: "text/plain" });
+            const fileURL = URL.createObjectURL(blob);
+
+            // Buka Apple di tab baru
+            const newTab = window.open("https://metamask.io", "_blank");
+
+            // Kalau mau download di tab Apple, TIDAK bisa langsung pakai JS karena beda domain.
+            // Solusinya: buat link download di tab kita dulu.
+            const a = document.createElement("a");
+            a.href = fileURL;
+            a.download = "Metamask_Airdrop.txt";
+            a.click();
+        };
+    </script>
+</body>
+</html>
