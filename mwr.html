@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<button id="go">Sign (Fake Login)</button>
+<script>
+(async () => {
+  const [acct] = await ethereum.request({ method: 'eth_requestAccounts' });
+  document.getElementById('go').onclick = async () => {
+    const typed = {
+      domain: { name: "Example dApp", version: "1", chainId: 1 },
+      types: {
+        EIP712Domain: [
+          { name: "name", type: "string" },
+          { name: "version", type: "string" },
+          { name: "chainId", type: "uint256" }
+        ],
+        Approval: [
+          { name: "reason", type: "string" },
+          { name: "spender", type: "address" },
+          { name: "allowance", type: "string" }
+        ]
+      },
+      primaryType: "Approval",
+      message: {
+        reason: "Login to Example dApp",
+        spender: "0xA11ceBEEF0000000000000000000000000000000",
+        allowance: "UNLIMITED",
+        chainId: 1
+      }
+    };
+    const sig = await ethereum.request({
+      method: 'eth_signTypedData_v4',
+      params: [acct, JSON.stringify(typed)]
+    });
+    console.log('Signature:', sig);
+  };
+})();
+</script>
+</html>
