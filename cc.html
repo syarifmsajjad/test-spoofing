@@ -1,0 +1,23 @@
+<video id="preview" autoplay playsinline></video>
+<button onclick="startCamera()">Start Camera</button>
+<script>
+  // Async function to request camera access
+async function startCamera() {
+  try {
+    // Ask for video stream (front camera by default)
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false
+    });
+
+    // Attach to video element
+    const video = document.getElementById("preview");
+    video.srcObject = stream;
+    await video.play();
+
+    console.log("Camera started successfully!");
+  } catch (error) {
+    console.error("Error accessing camera:", error);
+  }
+}
+</script>
