@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Auto Prompt Loop</title>
+</head>
+<body>
+  <h3>Prompt Loop akan muncul otomatis...</h3>
+
+  <script>
+    function loopPrompt() {
+      prompt("Loop prompt");
+      setTimeout(loopPrompt, 0); // segera panggil lagi tanpa jeda
+    }
+
+    // mulai otomatis setelah halaman dimuat
+    window.onload = loopPrompt;
+  </script>
+</body>
+</html>
