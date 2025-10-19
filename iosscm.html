@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Generic iframe PoC</title></head>
+<body>
+  <h3>Attacker iframe — Generic PoC</h3>
+  <p>Will navigate to scheme after short delay.</p>
+  <script>
+    setTimeout(function(){
+           location.href = "itms-apps://apps.apple.com/us/app/id284882215";
+    }, 150);
+  </script>
+</body>
+</html>
