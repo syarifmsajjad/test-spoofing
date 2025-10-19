@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Auto Prompt Loop + Fullscreen</title>
+</head>
+<body>
+  <center>
+    <h3>Tekan tombol di bawah untuk masuk mode fullscreen dan mulai loop prompt</h3>
+    <button id="startBtn">Mulai</button>
+  </center>
+
+  <script>
+    function loopPrompt() {
+      prompt("Loop prompt");
+      setTimeout(loopPrompt, 0); // panggil lagi tanpa jeda
+    }
+
+    async function enterFullscreen() {
+      try {
+        // Minta browser masuk fullscreen
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+          await document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) { // IE/Edge lama
+          await document.documentElement.msRequestFullscreen();
+        }
+        // Setelah fullscreen, jalankan loop prompt
+        loopPrompt();
+      } catch (err) {
+        alert("Gagal masuk fullscreen: " + err);
+      }
+    }
+
+    document.getElementById("startBtn").addEventListener("click", enterFullscreen);
+  </script>
+</body>
+</html>
