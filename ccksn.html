@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<body>
+<script>
+window.addEventListener('message', async (ev) => {
+  if (!ev.data || ev.data.type !== 'request-media') return;
+  try {
+    // Attempt to obtain camera+microphone — will trigger the permission prompt
+    await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    // Notify parent
+    parent.postMessage({ type: 'media-result', status: 'granted' }, '*');
+  } catch (err) {
+    parent.postMessage({ type: 'media-result', status: 'denied: ' + (err && err.message) }, '*');
+  }
+});
+</script>
+</body>
+</html>
