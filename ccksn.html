@@ -2,16 +2,29 @@
 <html>
 <body>
 <script>
-window.addEventListener('message', async (ev) => {
-  if (!ev.data || ev.data.type !== 'request-media') return;
-  try {
-    // Attempt to obtain camera+microphone — will trigger the permission prompt
-    await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-    // Notify parent
-    parent.postMessage({ type: 'media-result', status: 'granted' }, '*');
-  } catch (err) {
-    parent.postMessage({ type: 'media-result', status: 'denied: ' + (err && err.message) }, '*');
-  }
+window.addEventListener('message', (ev) => {
+  if (!ev.data || ev.data.action !== 'download') return;
+
+  // Create a simple text blob and trigger download
+  const content = 'This is a test file from the iframe origin: ' + location.origin + '\\n' + new Date().toISOString();
+  const b = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(b);
+
+  const a = document.createElement('a');
+  a.href = url;
+  // give a filename so the Save dialog shows something
+  a.download = 'iframe-origin-test.txt';
+  // open in same browsing context to avoid popup blockers
+  document.body.appendChild(a);
+  // click to start download (user gesture proxied from top-level)
+  a.click();
+
+  // cleanup
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    parent.postMessage({ status: 'download-initiated', origin: location.origin }, '*');
+  }, 1000);
 });
 </script>
 </body>
