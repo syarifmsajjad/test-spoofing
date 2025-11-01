@@ -1,0 +1,112 @@
+<script>
+(async () => {
+  // Choose a custom protocol that likely exists on your machine.
+  // Options: 'vscode://', 'zoommtg://', 'slack://', 'spotify://', 'steam://', etc.
+  const TARGET_SCHEME = 'vscode://file/'; // change as needed
+
+  // Build a temporary full-screen CTA so we have a trusted user gesture
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.5); z-index:2147483647; font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;`;
+  overlay.innerHTML = `
+    <div style="background:#fff; padding:18px 20px; border-radius:12px; width:min(480px,90vw); box-shadow:0 10px 30px rgba(0,0,0,.25);">
+      <h3 style="margin:0 0 10px;">Open External App (Origin Prompt)</h3>
+      <p style="margin:0 0 12px;">
+        Click the button to trigger the OS/browser dialog that shows this page's <b>origin</b> and asks
+        whether it may open an external application (<code>${TARGET_SCHEME}</code>).
+      </p>
+      <button id="open-ext" style="padding:10px 14px; border:0; border-radius:8px; background:#2563eb; color:#fff; cursor:pointer;">
+        Open External App
+      </button>
+      <button id="cancel-ext" style="margin-left:8px; padding:10px 14px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer;">
+        Cancel
+      </button>
+      <p id="ext-status" style="margin-top:12px; color:#444;"></p>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const btn = overlay.querySelector('#open-ext');
+  const cancel = overlay.querySelector('#cancel-ext');
+  const status = overlay.querySelector('#ext-status');
+
+  const cleanup = () => overlay.remove();
+
+  // Utility: try multiple techniques across browsers
+  function tryOpenExternalApp(url) {
+    return new Promise((resolve) => {
+      let didNavigate = false;
+
+      // Strategy A: direct navigation (often triggers the origin popup)
+      const navTimer = setTimeout(() => {
+        if (!didNavigate) resolve(false);
+      }, 2500);
+
+      const onBlur = () => {
+        // If the browser loses focus quickly, it's often because the OS handoff started
+        window.removeEventListener('blur', onBlur);
+        clearTimeout(navTimer);
+        resolve(true);
+      };
+      window.addEventListener('blur', onBlur, { once: true });
+
+      // Some browsers prefer setting location; others prefer an anchor click.
+      // We'll do both with a tiny delay so one can succeed.
+      try {
+        // A1) Anchor click (trusted user gesture context)
+        const a = document.createElement('a');
+        a.href = url;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 0);
+      } catch {}
+
+      setTimeout(() => {
+        try {
+          // A2) Direct location navigation
+          didNavigate = true;
+          location.href = url;
+        } catch {
+          // Strategy B: hidden iframe (older Chrome/Windows)
+          try {
+            const ifr = document.createElement('iframe');
+            ifr.style.display = 'none';
+            ifr.src = url;
+            document.body.appendChild(ifr);
+            setTimeout(() => ifr.remove(), 3000);
+          } catch {}
+        }
+      }, 50);
+    });
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    status.textContent = 'Requesting to open external application…';
+    console.log('🔗 Trying to trigger external protocol dialog for:', TARGET_SCHEME);
+
+    // Some platforms (Android Chrome) work best with "intent://" deep links.
+    // If you want that path, detect and build an intent URL here.
+
+    try {
+      const ok = await tryOpenExternalApp(TARGET_SCHEME);
+      if (ok) {
+        status.textContent = 'If the app is installed, the OS/browser should be prompting now.';
+        console.log('✅ External app handoff likely started. Watch for the dialog showing this page origin.');
+      } else {
+        status.textContent = 'No prompt detected; the app may not be installed or the browser blocked it.';
+        console.warn('⚠️ Could not detect handoff. If no dialog appeared, the protocol may be unhandled.');
+      }
+    } catch (err) {
+      console.error('❌ External open attempt failed:', err);
+      status.textContent = 'Failed to request external app.';
+    } finally {
+      // Leave overlay for a moment so you can read status; auto-remove later if you want:
+      setTimeout(cleanup, 3000);
+    }
+  }, { once: true });
+
+  cancel.addEventListener('click', cleanup, { once: true });
+})();
+</script>
