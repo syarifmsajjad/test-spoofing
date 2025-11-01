@@ -1,0 +1,33 @@
+<script>
+(async () => {
+  if (!("showOpenFilePicker" in window)) {
+    console.error("❌ File System Access API not supported in this browser.");
+    alert("File System Access API not supported. Use Chrome, Edge, or Opera over HTTPS.");
+    return;
+  }
+
+  try {
+    console.log("📂 Requesting file access — opening picker dialog…");
+
+    // Trigger the native “Select a file” dialog
+    const [fileHandle] = await window.showOpenFilePicker({
+      multiple: false,
+      types: [{
+        description: "Text files",
+        accept: { "text/plain": [".txt", ".md"] }
+      }]
+    });
+
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+
+    console.log("✅ File selected:", file.name);
+    console.log("📄 File content preview:\n", text.slice(0, 200));
+    alert(`✅ File selected: ${file.name}\n\nFirst 200 chars:\n${text.slice(0, 200)}`);
+  } catch (err) {
+    console.error("❌ File selection cancelled or failed:", err);
+    alert("❌ File selection cancelled or failed.");
+  }
+})();
+
+</script>
