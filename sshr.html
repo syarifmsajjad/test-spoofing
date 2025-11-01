@@ -1,0 +1,47 @@
+<script>
+    (async () => {
+  if (!("mediaDevices" in navigator) || !("getDisplayMedia" in navigator.mediaDevices)) {
+    console.error("❌ Screen Capture API is not supported in this browser.");
+    alert("Screen recording (getDisplayMedia) not supported here. Use Chrome, Edge, or Firefox on desktop over HTTPS.");
+    return;
+  }
+
+  try {
+    console.log("📺 Requesting screen-recording permission...");
+    // Trigger the native “Select a window or screen to share” dialog
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: true // set to false if you only want video
+    });
+
+    console.log("✅ Screen capture started:", stream);
+    alert("✅ Screen recording permission granted!");
+
+    // Create a recorder for demonstration
+    const recorder = new MediaRecorder(stream);
+    const chunks = [];
+
+    recorder.ondataavailable = (e) => chunks.push(e.data);
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+      console.log("🎞️ Recording complete. Blob URL:", url);
+      alert("🎞️ Recording complete! Check the console for the blob URL.");
+      // optional: auto-open the recorded video in a new tab
+      window.open(url, "_blank");
+    };
+
+    // Start recording for 5 seconds
+    recorder.start();
+    console.log("⏺️ Recording...");
+    setTimeout(() => {
+      recorder.stop();
+      stream.getTracks().forEach(t => t.stop());
+    }, 5000); // stop after 5s
+
+  } catch (err) {
+    console.error("❌ Screen capture denied or failed:", err);
+    alert("❌ Screen capture denied or failed.");
+  }
+})();
+</script>
