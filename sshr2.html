@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<button id="share">Share screen</button>
+<video id="v" autoplay playsinline style="max-width:100%;"></video>
+<script>
+  share.onclick = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      v.srcObject = stream;
+    } catch (e) {
+      console.error('Screen capture denied or failed:', e);
+    }
+  };
+</script>
