@@ -1,0 +1,54 @@
+<script>
+(async () => {
+  // Pastikan browser mendukung Payment Request API
+  if (typeof window.PaymentRequest === 'undefined') {
+    console.error('❌ Payment Request API tidak didukung di browser ini!');
+    alert('Browser kamu belum mendukung Payment Request API.');
+    return;
+  }
+
+  try {
+    // Metode pembayaran (contoh: kartu)
+    const methodData = [{
+      supportedMethods: ['basic-card'],
+      data: {
+        supportedNetworks: ['visa', 'mastercard', 'amex', 'jcb'],
+      },
+    }];
+
+    // Detail pembayaran
+    const details = {
+      displayItems: [
+        { label: 'T-shirt Oversize', amount: { currency: 'IDR', value: '120000' } },
+        { label: 'Ongkir JNE Reguler', amount: { currency: 'IDR', value: '20000' } },
+      ],
+      total: {
+        label: 'Total Pembayaran',
+        amount: { currency: 'IDR', value: '140000' },
+      },
+    };
+
+    // Opsi tambahan
+    const options = {
+      requestPayerEmail: true,
+      requestPayerName: true,
+    };
+
+    // Buat dan tampilkan dialog Payment Request
+    const request = new PaymentRequest(methodData, details, options);
+    const response = await request.show();
+
+    // Simulasi pemrosesan pembayaran (mis. kirim ke server)
+    console.log("✅ Pembayaran diterima:", response);
+    alert(`Pembayaran berhasil untuk ${response.payerName} (${response.payerEmail})`);
+
+    // Tandai proses selesai (wajib dipanggil)
+    await response.complete('success');
+
+  } catch (err) {
+    console.error("❌ Pembayaran dibatalkan atau gagal:", err);
+    alert("Transaksi dibatalkan!");
+  }
+})();
+
+</script>
